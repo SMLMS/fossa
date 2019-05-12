@@ -1,5 +1,5 @@
 /* ######################################################################
- * File Name: SMBMatrix.h
+ * File Name: SMBVector.h
  * Project: fossa
  * Version: 19.05
  * Creation Date: 11.05.2019
@@ -25,40 +25,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  #######################################################################*/
 
+#ifndef SMBVector_h
+#define SMBVector_h
 
-#ifndef SMBMatrix_h
-#define SMBMatrix_h
-
-@interface SMBMatrix : NSObject
+@interface SMBVector : NSObject
 {
-    NSUInteger _numberOfColumns;
-    NSUInteger _numberOfRows;
+    NSUInteger _numberOfEntries;
     NSMutableArray* _data;
     NSError* _error;
 }
 
 //initializor
--(id) init:(NSUInteger) columnNumber :(NSUInteger) rowNumber;
+-(id)init;
 
 //properties
--(void) setNumberOfColumns: (NSUInteger) columnNumber;
--(NSUInteger) numberOfColumns;
--(void) setNumberOfRows:(NSUInteger) rowNumber;
--(NSUInteger) numberOfRows;
--(NSMutableArray*) data;
+-(NSUInteger) numberOfEntries;
+-(NSMutableArray*) _data;
 
 //load functions
--(void) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
+-(void) readCsv: (NSString*) startCharacter :(NSString*) fileName;
 
 //proof functions
--(bool) proofMatrixDimensions;
+-(bool) proofVectorDimensions :(NSUInteger) desiredNumberOfEntries;
 
 //print Methods
--(void) printMatrix;
+-(void) printVector;
 -(void) printError;
 
 //deallocator
 -(void) dealloc;
+
 @end
 
-#endif /* SMBMatrix_h */
+#endif /* SMBVector_h */

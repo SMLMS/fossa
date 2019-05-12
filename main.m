@@ -35,6 +35,10 @@ int main(int argc, const char * argv[]) {
     [fileName appendString:@"/Users/malkusch/Documents/Biophysik/fossa/matrixl.txt"];
     SMBMatrix* matrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
     [matrix readCsv:fileName];
+    if(![matrix proofMatrixDimensions]){
+        [pool drain];
+        return 1;
+    }
     [matrix printMatrix];
     [pool drain];
     return 0;

@@ -31,7 +31,7 @@
 
 @implementation SMBMatrix
 //initializer
--(id) init :(unsigned int) columnNumber :(unsigned int) rowNumber
+-(id) init :(NSUInteger) columnNumber :(NSUInteger) rowNumber
 {
     self=[super init];
     if(self){
@@ -44,22 +44,22 @@
 }
 
 //Properties
--(void) setNumberOfColumns:(unsigned int)columnNumber
+-(void) setNumberOfColumns:(NSUInteger)columnNumber
 {
     _numberOfColumns = columnNumber;
 }
 
--(unsigned int) numberOfColumns
+-(NSUInteger) numberOfColumns
 {
     return _numberOfColumns;
 }
 
--(void) setNumberOfRows:(unsigned int)rowNumber
+-(void) setNumberOfRows:(NSUInteger)rowNumber
 {
     _numberOfRows = rowNumber;
 }
 
--(unsigned int) numberOfRows
+-(NSUInteger) numberOfRows
 {
     return _numberOfRows;
 }
@@ -70,7 +70,7 @@
 }
 
 //load functions
--(void) readCsv:(NSString *)fileName
+-(void) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
 {
     //define character for comments
     NSString* commentChar = @"#";
@@ -100,15 +100,13 @@
             }
         }
     }
-    [self proofMatrixDimensions];
 }
 
 -(bool) proofMatrixDimensions
 {
-    unsigned long arrayLength = [_data count];
+    NSUInteger arrayLength = [_data count];
     if (arrayLength != _numberOfRows * _numberOfColumns){
         NSLog(@"Fosser error: The imported matrix does not match the expected matrix dimensions.");
-        exit(1);
         return FALSE;
     }
     return TRUE;
@@ -118,8 +116,8 @@
 {
     NSMutableString* message = [[NSMutableString alloc] init];
     [message appendString:@"\n"];
-    for (unsigned int i=0; i<_numberOfRows; i++){
-        for(unsigned int j=0; j<_numberOfColumns; j++){
+    for (NSUInteger i=0; i<_numberOfRows; i++){
+        for(NSUInteger j=0; j<_numberOfColumns; j++){
             [message appendFormat:@"%i\t", [[_data objectAtIndex: (i*_numberOfColumns+j)] intValue]];
         }
         [message appendString:@"\n"];
