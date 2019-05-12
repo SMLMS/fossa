@@ -34,7 +34,6 @@
     NSUInteger _numberOfColumns;
     NSUInteger _numberOfRows;
     NSMutableArray* _data;
-    NSError* _error;
 }
 
 //initializor
@@ -48,14 +47,13 @@
 -(NSMutableArray*) data;
 
 //load functions
--(void) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
+-(bool) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
 
 //proof functions
 -(bool) proofMatrixDimensions;
 
 //print Methods
 -(void) printMatrix;
--(void) printError;
 
 //deallocator
 -(void) dealloc;

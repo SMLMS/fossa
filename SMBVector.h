@@ -32,7 +32,6 @@
 {
     NSUInteger _numberOfEntries;
     NSMutableArray* _data;
-    NSError* _error;
 }
 
 //initializor
@@ -50,7 +49,6 @@
 
 //print Methods
 -(void) printVector;
--(void) printError;
 
 //deallocator
 -(void) dealloc;

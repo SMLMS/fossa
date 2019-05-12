@@ -32,14 +32,27 @@ int main(int argc, const char * argv[]) {
     // set up manual reference counting (MRC) environment
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSMutableString* fileName =[[[NSMutableString alloc] init] autorelease];
-    [fileName appendString:@"/Users/malkusch/Documents/Biophysik/fossa/matrixl.txt"];
-    SMBMatrix* matrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
-    [matrix readCsv:fileName];
-    if(![matrix proofMatrixDimensions]){
+    [fileName appendString:@"/Users/malkusch/Documents/Biophysik/fossa/model.txt"];
+    SMBMatrix* eductMatrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
+    SMBMatrix* productMatrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
+    if(![eductMatrix readCsv:@"$" : @"%" :fileName]){
         [pool drain];
         return 1;
     }
-    [matrix printMatrix];
+    if(![eductMatrix proofMatrixDimensions]){
+        [pool drain];
+        return 1;
+    }
+    if(![productMatrix readCsv:@"%" :@"&" :fileName]){
+        [pool drain];
+        return 1;
+    }
+    if(![productMatrix proofMatrixDimensions]){
+        [pool drain];
+        return 1;
+    }
+    [eductMatrix printMatrix];
+    [productMatrix printMatrix];
     [pool drain];
     return 0;
 }

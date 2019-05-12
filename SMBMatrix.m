@@ -38,7 +38,6 @@
         _numberOfColumns = columnNumber;
         _numberOfRows = rowNumber;
         _data = [[NSMutableArray alloc] init];
-        _error = nil;
     }
     return self;
 }
@@ -70,36 +69,51 @@
 }
 
 //load functions
--(void) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
+-(bool) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
 {
-    //define character for comments
-    NSString* commentChar = @"#";
     //free _data
     [_data removeAllObjects];
+    // define error
+    NSError* error;
+    error = nil;
     //load file to string
     NSString* rawFileContent = [NSString stringWithContentsOfFile: fileName
                                                   encoding:NSUTF8StringEncoding
-                                                     error:&_error];
-    if(_error != nil){
-        [self printError];
-        exit(1);
+                                                     error:&error];
+    if(error != nil){
+        NSLog(@"Fossa detected an error:\n%@", error);
+        return FALSE;
     }
     //convert string contents to NSNumber
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.numberStyle = NSNumberFormatterDecimalStyle;
     NSArray* rows = [rawFileContent componentsSeparatedByString:@"\n"];
+    bool foundStart = FALSE;
     for(NSString* row in rows){
-        NSArray* columns = [row componentsSeparatedByString:@","];
-        NSRange range = [[columns objectAtIndex:0] rangeOfString:commentChar];
-        if(range.location == NSNotFound){
+        NSRange range = [row  rangeOfString:startCharacter];
+        if (range.location != NSNotFound){
+            foundStart = TRUE;
+            continue;
+        }
+        range = [row rangeOfString:stopCharacter];
+        if(range.location != NSNotFound){
+            return TRUE;
+        }
+        if(foundStart){
+            NSArray* columns = [row componentsSeparatedByString:@","];
             for(NSString* stringEntry in columns){
                 NSNumber* numberEntry = [formatter numberFromString:stringEntry];
                 if(numberEntry != nil){
                     [_data addObject: numberEntry];
                 }
+                else{
+                    NSLog(@"error: Fossa found matrix entry of wrong type!");
+                    return FALSE;
+                }
             }
         }
     }
+    return TRUE;
 }
 
 -(bool) proofMatrixDimensions
@@ -125,18 +139,12 @@
     NSLog(@"%@", message);
 }
 
--(void) printError{
-    NSLog(@"Fossa detected an error:\n%@", _error);
-}
-
 //deallocator
 -(void) dealloc
 {
     NSLog(@"Matrix deallocated");
     [_data release];
     _data = nil;
-    [_error release];
-    _error = nil;
     [super dealloc];
 }
 @end
