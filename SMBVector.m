@@ -110,6 +110,11 @@
                                        initWithName:@"SMBVector character error"
                                        reason:@"Fossa found matrix entry of wrong type!"
                                        userInfo:nil];
+
+    NSException* exceptionStart = [[NSException alloc]
+                                  initWithName:@"SMBVector start character error"
+                                  reason:@"could not find start character in file. Make sure it exists."
+                                  userInfo:nil];
     // proof if file exists
     NSFileManager* fm = [[NSFileManager alloc] init];
     if(![fm fileExistsAtPath:fileName]){
@@ -125,6 +130,7 @@
                                                             error:&error];
     if(error != nil){
         NSLog(@"Fossa detected an error:\n%@", error);
+	return;
     }
     //convert string contents to NSNumber
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
@@ -151,15 +157,17 @@
                 }
             }
             [self setNumberOfEntries: [_data count]];
-            return;
+            break;
         }
+    }
+    if(!foundStart){
+	[exceptionStart raise];
     }
     [exceptionFile release];
     [exceptionCharacter release];
     [fm release];
     [error release];
     [rawFileContent release];
-    [formatter release];
     [rows release];
     return;
 }

@@ -33,7 +33,7 @@ int main(int argc, const char * argv[]) {
     // set up manual reference counting (MRC) environment
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSMutableString* fileName =[[[NSMutableString alloc] init] autorelease];
-    [fileName appendString:@"/Users/malkusch/Documents/Biophysik/fossa/model.txt"];
+    [fileName appendString:@"/home/malkusch/Dokumente/fossaTest/model.txt"];
     SMBVector* amountVector = [[[SMBVector alloc] init] autorelease];
     SMBVector* reactionConstants = [[[SMBVector alloc] init] autorelease];
     SMBMatrix* eductMatrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
@@ -47,6 +47,8 @@ int main(int argc, const char * argv[]) {
         [pool drain];
         return 1;
     }
+
+
     @try{
         [reactionConstants readCsv:@"§" :fileName];
     }
@@ -55,6 +57,7 @@ int main(int argc, const char * argv[]) {
         [pool drain];
         return 1;
     }
+
     @try{
         [eductMatrix readCsv:@"$" : @"%" :fileName];
     }
@@ -67,6 +70,7 @@ int main(int argc, const char * argv[]) {
         [pool drain];
         return 1;
     }
+
     @try{
         [productMatrix readCsv:@"%" :@"&" :fileName];
     }
@@ -79,7 +83,7 @@ int main(int argc, const char * argv[]) {
         [pool drain];
         return 1;
     }
-    NSNumber* num = [[NSNumber alloc] initWithInt:5];
+    NSNumber* num = [[[NSNumber alloc] initWithInt:5] autorelease];
     @try{
         [eductMatrix replaceObjectAtIndex:0 :0 with:num];
         //NSLog(@"The value is %@", [eductMatrix objectAtIndex:0 :3]);
@@ -89,6 +93,7 @@ int main(int argc, const char * argv[]) {
         [pool drain];
         return 1;
     }
+
     [amountVector printVectorAsInt];
     [reactionConstants printVectorAsFloat];
     [eductMatrix printMatrix];
