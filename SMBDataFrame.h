@@ -1,8 +1,8 @@
 /* ######################################################################
- * File Name: SMBVector.h
+ * File Name: SMBDataFrame.h
  * Project: fossa
  * Version: 19.05
- * Creation Date: 11.05.2019
+ * Creation Date: 14.05.2019
  * Created By: Sebastian Malkusch
  * Contact: <malkusch@chemie.uni-frankfurt.de>
  * Company: Goethe University of Frankfurt
@@ -25,42 +25,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  #######################################################################*/
 
-#ifndef SMBVector_h
-#define SMBVector_h
+#ifndef SMBDataFrame_h
+#define SMBDataFrame_h
 
-@interface SMBVector : NSObject
+#import "SMBVector.h"
+
+@interface SMBDataFrame : NSObject
 {
+    NSMutableString* _fileName;
     NSUInteger _numberOfEntries;
+    NSUInteger _numberOfReactants;
+    NSMutableArray* _reactantNames;
     NSMutableArray* _data;
 }
 
-//initializor
--(id)init;
--(id)initWithSize:(NSUInteger) value;
-
-//properties
--(NSUInteger) numberOfEntries;
--(void) setNumberOfEntries:(NSUInteger) value;
--(NSMutableArray*) _data;
-
-//mutators
--(NSNumber*) objectAtIndex:(NSUInteger) idx;
--(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*)object;
-
-//load functions
--(void) readCsv: (NSString*) startCharacter :(NSString*) fileName;
-
-//proof functions
--(bool) proofVectorDimension;
--(bool) proofIfEntryExists:(NSUInteger) idx;
-
-//print Methods
--(void) printVectorAsInt;
--(void) printVectorAsFloat;
-
-//deallocator
--(void) dealloc;
 
 @end
-
-#endif /* SMBVector_h */
+#endif /* SMBDataFrame_h */

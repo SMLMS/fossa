@@ -69,37 +69,52 @@
 }
 
 //mutators
--(id) objectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx
+-(NSNumber*) objectAtIndex:(NSUInteger) rowIdx :(NSUInteger) columnIdx
 {
-    
-    NS_DURING{
-        NSException* ex = [[NSException alloc]
-                           initWithName:@"SMBMatrix out of range error"
-                           reason:@"objectAt point to an entry that exceeds matrix dimensions"
-                           userInfo:nil];
-        if(![self proofIfEntryExists:rowIdx :columnIdx]){[ex raise];}
+    NSException* exception = [[NSException alloc]
+                       initWithName:@"SMBMatrix out of range error"
+                       reason:@"objectAtIndex points to an entry that exceeds matrix dimensions"
+                       userInfo:nil];
+    if(![self proofIfEntryExists:rowIdx :columnIdx]){
+        [exception raise];
     }
-    NS_HANDLER{
-        [localException raise];
-    }
-    NS_ENDHANDLER
+    [exception release];
     return [_data objectAtIndex: (rowIdx*_numberOfColumns+columnIdx)];
 }
 
--(void) setObjectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx
+-(void) replaceObjectAtIndex:(NSUInteger)rowIdx :(NSUInteger)columnIdx with:(NSNumber*)object
 {
-    NSLog(@"under construction");
+    NSException* exception = [[NSException alloc]
+                              initWithName:@"SMBMatrix out of range error"
+                              reason:@"replaceObjectAtIndex points to an entry that exceeds matrix dimensions"
+                              userInfo:nil];
+    if(![self proofIfEntryExists:rowIdx :columnIdx]){
+        [exception raise];
+    }
+    [_data replaceObjectAtIndex:(rowIdx * _numberOfColumns + columnIdx)
+                     withObject:object];
+    [exception release];
 }
 //load functions
--(bool) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
+-(void) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
 {
     //free _data
     [_data removeAllObjects];
+    // define exceptions
+    NSException* exceptionFile = [[NSException alloc]
+                       initWithName:@"SMBMatrix file Name error"
+                       reason:@"could not read from file. Make sure the path exists."
+                       userInfo:nil];
+    
+    NSException* exceptionCharacter = [[NSException alloc]
+                                  initWithName:@"SMBMatrix character error"
+                                  reason:@"Fossa found matrix entry of wrong type!"
+                                  userInfo:nil];
     // proof if file exists
     NSFileManager* fm = [[NSFileManager alloc] init];
-    if(![fm fileExistsAtPath:fileName]){
-        NSLog(@"Fossa detected an error: Could not load file %@\nMake sure it exists.", fileName);
-        return false;
+        if(![fm fileExistsAtPath:fileName]){
+            [exceptionFile raise];
+            return;
     }
     // define error
     NSError* error;
@@ -107,12 +122,12 @@
     // load file
     NSString* rawFileContent = [NSString stringWithContentsOfFile: fileName
                                                          encoding:NSUTF8StringEncoding
-                                                            error:nil];
+                                                            error:&error];
     if(error != nil){
         NSLog(@"Fossa detected an error:\n%@", error);
-        return false;
     }
     //convert string contents to NSNumber
+    
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.numberStyle = NSNumberFormatterDecimalStyle;
     NSArray* rows = [rawFileContent componentsSeparatedByString:@"\n"];
@@ -125,7 +140,7 @@
         }
         range = [row rangeOfString:stopCharacter];
         if(range.location != NSNotFound){
-            return true;
+            return;
         }
         if(foundStart){
             NSArray* columns = [row componentsSeparatedByString:@","];
@@ -135,13 +150,20 @@
                     [_data addObject: numberEntry];
                 }
                 else{
-                    NSLog(@"error: Fossa found matrix entry of wrong type!");
-                    return true;
+                    [exceptionCharacter raise];
+                    return;
                 }
             }
         }
     }
-    return true;
+    [exceptionFile release];
+    [exceptionCharacter release];
+    [fm release];
+    [error release];
+    [rawFileContent release];
+    [formatter release];
+    [rows release];
+    return;
 }
 
 // proof methods
@@ -157,11 +179,17 @@
 
 -(bool) proofIfEntryExists:(NSUInteger) rowIdx :(NSUInteger) columnIdx
 {
-    NSUInteger arrayLength = [_data count];
-    if (arrayLength > (rowIdx * _numberOfColumns + columnIdx)){
-        return true;
+    if(rowIdx >= _numberOfRows){
+        return false;
     }
-    return false;
+    if(columnIdx >= _numberOfColumns){
+        return false;
+    }
+    NSUInteger arrayLength = [_data count];
+    if (arrayLength <= (rowIdx * _numberOfColumns + columnIdx)){
+        return false;
+    }
+    return true;
 }
 
 //print Methods
@@ -176,6 +204,7 @@
         [message appendString:@"\n"];
     }
     NSLog(@"%@", message);
+    [message release];
 }
 
 //deallocator

@@ -47,11 +47,11 @@
 -(NSMutableArray*) data;
 
 //mutators
--(id) objectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
--(void) setObjectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
+-(NSNumber*) objectAtIndex:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
+-(void) replaceObjectAtIndex:(NSUInteger) rowIdx :(NSUInteger) columnIdx with:(NSNumber*)object;
 
 //load functions
--(bool) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
+-(void) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
 
 //proof functions
 -(bool) proofMatrixDimensions;
