@@ -68,36 +68,64 @@
     return _data;
 }
 
+//mutators
+-(id) objectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx
+{
+    
+    NS_DURING{
+        NSException* ex = [[NSException alloc]
+                           initWithName:@"SMBMatrix out of range error"
+                           reason:@"objectAt point to an entry that exceeds matrix dimensions"
+                           userInfo:nil];
+        if(![self proofIfEntryExists:rowIdx :columnIdx]){[ex raise];}
+    }
+    NS_HANDLER{
+        [localException raise];
+    }
+    NS_ENDHANDLER
+    return [_data objectAtIndex: (rowIdx*_numberOfColumns+columnIdx)];
+}
+
+-(void) setObjectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx
+{
+    NSLog(@"under construction");
+}
 //load functions
 -(bool) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
 {
     //free _data
     [_data removeAllObjects];
+    // proof if file exists
+    NSFileManager* fm = [[NSFileManager alloc] init];
+    if(![fm fileExistsAtPath:fileName]){
+        NSLog(@"Fossa detected an error: Could not load file %@\nMake sure it exists.", fileName);
+        return false;
+    }
     // define error
     NSError* error;
     error = nil;
-    //load file to string
+    // load file
     NSString* rawFileContent = [NSString stringWithContentsOfFile: fileName
-                                                  encoding:NSUTF8StringEncoding
-                                                     error:&error];
+                                                         encoding:NSUTF8StringEncoding
+                                                            error:nil];
     if(error != nil){
         NSLog(@"Fossa detected an error:\n%@", error);
-        return FALSE;
+        return false;
     }
     //convert string contents to NSNumber
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.numberStyle = NSNumberFormatterDecimalStyle;
     NSArray* rows = [rawFileContent componentsSeparatedByString:@"\n"];
-    bool foundStart = FALSE;
+    bool foundStart = false;
     for(NSString* row in rows){
         NSRange range = [row  rangeOfString:startCharacter];
         if (range.location != NSNotFound){
-            foundStart = TRUE;
+            foundStart = true;
             continue;
         }
         range = [row rangeOfString:stopCharacter];
         if(range.location != NSNotFound){
-            return TRUE;
+            return true;
         }
         if(foundStart){
             NSArray* columns = [row componentsSeparatedByString:@","];
@@ -108,23 +136,34 @@
                 }
                 else{
                     NSLog(@"error: Fossa found matrix entry of wrong type!");
-                    return FALSE;
+                    return true;
                 }
             }
         }
     }
-    return TRUE;
+    return true;
 }
 
+// proof methods
 -(bool) proofMatrixDimensions
 {
     NSUInteger arrayLength = [_data count];
     if (arrayLength != _numberOfRows * _numberOfColumns){
         NSLog(@"Fosser error: The imported matrix does not match the expected matrix dimensions.");
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
+
+-(bool) proofIfEntryExists:(NSUInteger) rowIdx :(NSUInteger) columnIdx
+{
+    NSUInteger arrayLength = [_data count];
+    if (arrayLength > (rowIdx * _numberOfColumns + columnIdx)){
+        return true;
+    }
+    return false;
+}
+
 //print Methods
 -(void) printMatrix
 {

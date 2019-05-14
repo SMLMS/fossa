@@ -51,6 +51,14 @@ int main(int argc, const char * argv[]) {
         [pool drain];
         return 1;
     }
+    @try{
+        NSLog(@"The value is %@", [eductMatrix objectAt:2 :3]);
+    }
+    @catch(NSException *exception){
+        NSLog(@"Fossa caught an exception:\n %@", exception);
+        [pool drain];
+        return 1;
+    }
     [eductMatrix printMatrix];
     [productMatrix printMatrix];
     [pool drain];

@@ -46,11 +46,16 @@
 -(NSUInteger) numberOfRows;
 -(NSMutableArray*) data;
 
+//mutators
+-(id) objectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
+-(void) setObjectAt:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
+
 //load functions
 -(bool) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
 
 //proof functions
 -(bool) proofMatrixDimensions;
+-(bool) proofIfEntryExists:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
 
 //print Methods
 -(void) printMatrix;
