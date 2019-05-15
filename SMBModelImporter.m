@@ -1,5 +1,5 @@
 /* ######################################################################
-* File Name: SMBModelString.m
+* File Name: SMBModelImporter.m
 * Project: fossa
 * Version: 19.05
 * Creation Date: 11.05.2019
@@ -26,101 +26,118 @@
 #######################################################################*/
 
 #import <Foundation/Foundation.h>
-#import "SMBModelString.h"
+#import "SMBModelImporter.h"
 
-@implementation SMBModelString
+@implementation SMBModelImporter
 // initializer
 -(id)init
 {
     self=[super init];
     if(self){
-        _fileName = [[NSMutableString alloc] init];;
-        _data = [[NSMutableString alloc] init];
+        _fileName = [[NSString alloc] init];
+        _data = [[NSString alloc] init];
     }
     return self;
 
 }
 // properties
--(id)initWithFileName:(NSMutableString*) value
+-(id)initWithFileName:(NSString*) value
 {
-    [value retain];
     self=[super init];
     if(self){
+        [value retain];
         _fileName = value;
 	_data = [[NSMutableString alloc] init];
     }
     return self;
 }
 
--(NSMutableString*) fileName
+-(NSString*) fileName
 {
     return _fileName;
 }
 
--(void) setFileName:(NSMutableString*) value
+-(void) setFileName:(NSString*) value
 {
     [value retain];
     [_fileName release];
     _fileName = value;
 }
 
--(NSMutableString*) _data
+-(NSString*) _data
 {
     return _data;
 }
 
 //mutators
--(NSMutableString*) substringFrom:(NSString*) startCharacter to:(NSString*) stopCharacter
+-(NSMutableArray*) subModelFrom:(NSString*) startSeq to:(NSString*) stopSeq;
 {
-    [startCharacter retain];
-    [stopCharacter retain];
-    NSMutableString* subString = [[NSMutableString alloc] init];
+    [startSeq retain];
+    [stopSeq retain];
+    NSException* exceptionCharacter = [[NSException alloc]
+                                  initWithName:@"SMBMatrix character error"
+                                  reason:@"Fossa found matrix entry of wrong type!"
+                                  userInfo:nil];
+    NSMutableArray* subModel = [[NSMutableArray alloc] init];
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+    [formatter setDecimalSeparator:@"."];
     NSArray* rows = [_data componentsSeparatedByString:@"\n"];
     bool foundStart = false;
     bool foundStop = false;
     for(NSString* row in rows){
-        NSRange range = [row  rangeOfString:startCharacter];
+        NSRange range = [row  rangeOfString:startSeq];
         if (range.location != NSNotFound){
             foundStart = true;
             continue;
         }
-        range = [row rangeOfString:stopCharacter];
+        range = [row rangeOfString:stopSeq];
         if(range.location != NSNotFound){
             foundStop = true;
             break;
         }
         if(foundStart){
-// hier geht es weiter append row + append \t
+            NSArray* columns = [row componentsSeparatedByString:@","];
+            for(NSString* stringEntry in columns){
+                NSNumber* numberEntry = [formatter numberFromString:stringEntry];
+                if(numberEntry != nil){
+                    [subModel addObject: numberEntry];
+                }
+                else{
+                    [exceptionCharacter raise];
+                    break;
+                }
+            }
         }
     }
     if(!foundStart){
-        NSLog(@"Warning: start character %@ not found", startCharacter);
+        NSLog(@"Warning: start sequence '%@' not found", startSeq);
     }
     if(!foundStop){
-        NSLog(@"Warning: stop character %@ not found", stopCharacter);
+        NSLog(@"Warning: stop sequence '%@' not found", stopSeq);
     }
-    [rows release];
-    [startCharacter release];
-    [stopCharacter release];
-    return subString;
+    [formatter release];
+    [startSeq release];
+    [stopSeq release];
+    [subModel autorelease];
+    return subModel;
 }
 
 // load functions
 -(void) readCsv
 {
+
     // define error
     NSError* error;
     error = nil;
     // load file
     [_data release];
-     _data = [NSString stringWithContentsOfFile: _fileName
+    _data = [[NSString stringWithContentsOfFile: _fileName
                                        encoding:NSUTF8StringEncoding
-                                          error:&error];
+                                          error:&error] retain];
     if(error != nil){
         NSLog(@"Fossa detected an error:\n%@", error);
     }
-    [error release];
-    return;
 }
 
 //proof functions

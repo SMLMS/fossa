@@ -42,13 +42,12 @@
 -(NSUInteger) numberOfEntries;
 -(void) setNumberOfEntries:(NSUInteger) value;
 -(NSMutableArray*) _data;
+-(void) setData:(NSMutableArray*) dataArray;
 
 //mutators
 -(NSNumber*) objectAtIndex:(NSUInteger) idx;
 -(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*)object;
-
-//load functions
--(void) readCsv: (NSString*) startCharacter :(NSString*) fileName;
+-(void) calculateNumberOfEntries;
 
 //proof functions
 -(bool) proofVectorDimension;

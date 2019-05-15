@@ -31,7 +31,17 @@
 
 @implementation SMBMatrix
 //initializer
--(id) init :(NSUInteger) columnNumber :(NSUInteger) rowNumber
+-(id) init
+{
+    self=[super init];
+    if(self){
+        _numberOfColumns = 0;
+        _numberOfRows = 0;
+        _data = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+-(id) initWithSize :(NSUInteger) columnNumber :(NSUInteger) rowNumber
 {
     self=[super init];
     if(self){
@@ -61,6 +71,13 @@
 -(NSUInteger) numberOfRows
 {
     return _numberOfRows;
+}
+
+-(void) setData:(NSMutableArray*) dataArray
+{
+    [dataArray retain];
+    [_data release];
+    _data = dataArray;
 }
 
 -(NSMutableArray*) data
@@ -94,76 +111,6 @@
     [_data replaceObjectAtIndex:(rowIdx * _numberOfColumns + columnIdx)
                      withObject:object];
     [exception release];
-}
-//load functions
--(void) readCsv:(NSString*) startCharacter :(NSString*) stopCharacter :(NSString *)fileName
-{
-    //free _data
-    [_data removeAllObjects];
-    // define exceptions
-    NSException* exceptionFile = [[NSException alloc]
-                       initWithName:@"SMBMatrix file Name error"
-                       reason:@"could not read from file. Make sure the path exists."
-                       userInfo:nil];
-    
-    NSException* exceptionCharacter = [[NSException alloc]
-                                  initWithName:@"SMBMatrix character error"
-                                  reason:@"Fossa found matrix entry of wrong type!"
-                                  userInfo:nil];
-    // proof if file exists
-    NSFileManager* fm = [[NSFileManager alloc] init];
-        if(![fm fileExistsAtPath:fileName]){
-            [exceptionFile raise];
-            return;
-    }
-    // define error
-    NSError* error;
-    error = nil;
-    // load file
-    NSString* rawFileContent = [NSString stringWithContentsOfFile: fileName
-                                                         encoding:NSUTF8StringEncoding
-                                                            error:&error];
-    if(error != nil){
-        NSLog(@"Fossa detected an error:\n%@", error);
-    }
-    //convert string contents to NSNumber
-    
-    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-    formatter.numberStyle = NSNumberFormatterDecimalStyle;
-    NSArray* rows = [rawFileContent componentsSeparatedByString:@"\n"];
-    bool foundStart = false;
-    for(NSString* row in rows){
-        NSRange range = [row  rangeOfString:startCharacter];
-        if (range.location != NSNotFound){
-            foundStart = true;
-            continue;
-        }
-        range = [row rangeOfString:stopCharacter];
-        if(range.location != NSNotFound){
-            return;
-        }
-        if(foundStart){
-            NSArray* columns = [row componentsSeparatedByString:@","];
-            for(NSString* stringEntry in columns){
-                NSNumber* numberEntry = [formatter numberFromString:stringEntry];
-                if(numberEntry != nil){
-                    [_data addObject: numberEntry];
-                }
-                else{
-                    [exceptionCharacter raise];
-                    return;
-                }
-            }
-        }
-    }
-    [exceptionFile release];
-    [exceptionCharacter release];
-    [fm release];
-    [error release];
-    [rawFileContent release];
-    [formatter release];
-    [rows release];
-    return;
 }
 
 // proof methods

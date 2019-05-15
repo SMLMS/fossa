@@ -37,21 +37,20 @@
 }
 
 //initializor
--(id) init:(NSUInteger) columnNumber :(NSUInteger) rowNumber;
+-(id) init;
+-(id) initWithSize :(NSUInteger) columnNumber :(NSUInteger) rowNumber;
 
 //properties
 -(void) setNumberOfColumns: (NSUInteger) columnNumber;
 -(NSUInteger) numberOfColumns;
 -(void) setNumberOfRows:(NSUInteger) rowNumber;
 -(NSUInteger) numberOfRows;
+-(void) setData:(NSMutableArray*) dataArray;
 -(NSMutableArray*) data;
 
 //mutators
 -(NSNumber*) objectAtIndex:(NSUInteger) rowIdx :(NSUInteger) columnIdx;
 -(void) replaceObjectAtIndex:(NSUInteger) rowIdx :(NSUInteger) columnIdx with:(NSNumber*)object;
-
-//load functions
--(void) readCsv: (NSString*) startCharacter :(NSString*) stopCharacter :(NSString*) fileName;
 
 //proof functions
 -(bool) proofMatrixDimensions;

@@ -1,5 +1,5 @@
 /* ######################################################################
- * File Name: SMBModelString.h
+ * File Name: SMBModelImporter.h
  * Project: fossa
  * Version: 19.05
  * Creation Date: 11.05.2019
@@ -25,26 +25,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  #######################################################################*/
 
-#ifndef SMBModelString_h
-#define SMBModelString_h
+#ifndef SMBModelImporter_h
+#define SMBModelImporter_h
 
-@interface SMBModelString : NSObject
+@interface SMBModelImporter : NSObject
 {
-    NSMutableString* _fileName;
-    NSMutableString* _data;
+    NSString* _fileName;
+    NSString* _data;
 }
 
 //initializor
 -(id)init;
--(id)initWithFileName:(NSMutableString*) value;
+-(id)initWithFileName:(NSString*) value;
 
 //properties
--(NSMutableString*) fileName;
--(void) setFileName:(NSMutableString*) value;
--(NSMutableArray*) _data;
+-(NSString*) fileName;
+-(void) setFileName:(NSString*) value;
+-(NSString*) _data;
 
 //mutators
--(NSMutableString*) substringFrom:(NSString*) startCharacter to:(NSString*) stopCharacter;
+-(NSMutableArray*) subModelFrom:(NSString*) startSeq to:(NSString*) stopSeq;
 
 //load functions
 -(void) readCsv;
@@ -62,4 +62,4 @@
 
 @end
 
-#endif /* SMBModelString_h */
+#endif /* SMBModelImporter_h */

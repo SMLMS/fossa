@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SMBMatrix.h"
+#import "SMBModelImporter.h"
 #import "SMBVector.h"
 
 int main(int argc, const char * argv[]) {
@@ -34,70 +35,45 @@ int main(int argc, const char * argv[]) {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSMutableString* fileName =[[[NSMutableString alloc] init] autorelease];
     [fileName appendString:@"/home/malkusch/Dokumente/fossaTest/model.txt"];
+
+    SMBModelImporter* mi = [[[SMBModelImporter alloc] init] autorelease];
     SMBVector* amountVector = [[[SMBVector alloc] init] autorelease];
     SMBVector* reactionConstants = [[[SMBVector alloc] init] autorelease];
-    SMBMatrix* eductMatrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
-    SMBMatrix* productMatrix = [[[SMBMatrix alloc] init:4 :3] autorelease];
+    SMBMatrix* eductMatrix = [[[SMBMatrix alloc] init] autorelease];
+    SMBMatrix* productMatrix = [[[SMBMatrix alloc] init] autorelease];
 
+    [mi setFileName: fileName];
+    if(![mi proofIfFileName]){
+        [pool drain];
+        return EXIT_FAILURE;
+    }
+
+    [mi readCsv];
     @try{
-        [amountVector readCsv:@"*" :fileName];
+        [amountVector setData: [mi subModelFrom:@"* start" to:@"* stop"]];
+        [amountVector calculateNumberOfEntries];
+        [reactionConstants setData: [mi subModelFrom:@"§ start" to:@"§ stop"]];
+        [reactionConstants calculateNumberOfEntries];
+        [eductMatrix setNumberOfColumns: [reactionConstants numberOfEntries]];
+        [eductMatrix setNumberOfRows: [amountVector numberOfEntries]];
+        [productMatrix setNumberOfColumns: [reactionConstants numberOfEntries]];
+        [productMatrix setNumberOfRows: [amountVector numberOfEntries]];
+        [eductMatrix setData: [mi subModelFrom:@"$ start" to:@"$ stop"]];
+        [productMatrix setData: [mi subModelFrom:@"# start" to:@"# stop"]];
     }
     @catch(NSException* exception){
         NSLog(@"Fossa caught an exception:\n %@", exception);
         [pool drain];
-        return 1;
+        return EXIT_FAILURE;
     }
-
-
-    @try{
-        [reactionConstants readCsv:@"§" :fileName];
-    }
-    @catch(NSException* exception){
-        NSLog(@"Fossa caught an exception:\n %@", exception);
-        [pool drain];
-        return 1;
-    }
-
-    @try{
-        [eductMatrix readCsv:@"$" : @"%" :fileName];
-    }
-    @catch(NSException* exception){
-        NSLog(@"Fossa caught an exception:\n %@", exception);
-        [pool drain];
-        return 1;
-    }
-    if(![eductMatrix proofMatrixDimensions]){
-        [pool drain];
-        return 1;
-    }
-
-    @try{
-        [productMatrix readCsv:@"%" :@"&" :fileName];
-    }
-    @catch(NSException* exception){
-        NSLog(@"Fossa caught an exception:\n %@", exception);
-        [pool drain];
-        return 1;
-    }
-    if(![productMatrix proofMatrixDimensions]){
-        [pool drain];
-        return 1;
-    }
-    NSNumber* num = [[[NSNumber alloc] initWithInt:5] autorelease];
-    @try{
-        [eductMatrix replaceObjectAtIndex:0 :0 with:num];
-        //NSLog(@"The value is %@", [eductMatrix objectAtIndex:0 :3]);
-    }
-    @catch(NSException* exception){
-        NSLog(@"Fossa caught an exception:\n %@", exception);
-        [pool drain];
-        return 1;
-    }
-
     [amountVector printVectorAsInt];
     [reactionConstants printVectorAsFloat];
-    [eductMatrix printMatrix];
-    [productMatrix printMatrix];
+    if([eductMatrix proofMatrixDimensions]){
+        [eductMatrix printMatrix];
+    }
+    if([productMatrix proofMatrixDimensions]){
+        [productMatrix printMatrix];
+    }
     [pool drain];
-    return 0;
+    return EXIT_SUCCESS;
 }

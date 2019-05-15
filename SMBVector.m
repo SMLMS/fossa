@@ -67,6 +67,13 @@
     return _data;
 }
 
+-(void) setData:(NSMutableArray*) dataArray
+{
+    [dataArray retain];
+    [_data release];
+    _data = dataArray;
+}
+
 //mutators
 -(NSNumber*) objectAtIndex:(NSUInteger) idx
 {
@@ -77,7 +84,6 @@
     if(![self proofIfEntryExists:idx]){
         [exception raise];
     }
-    [exception release];
     return [_data objectAtIndex: idx];
 }
 
@@ -92,84 +98,11 @@
     }
     [_data replaceObjectAtIndex:idx
                      withObject:object];
-    [exception release];
 }
 
-//load functions
--(void) readCsv: (NSString*) startCharacter :(NSString*) fileName
+-(void) calculateNumberOfEntries
 {
-    //free _data
-    [_data removeAllObjects];
-    // define exceptions
-    NSException* exceptionFile = [[NSException alloc]
-                                  initWithName:@"SMBVector file Name error"
-                                  reason:@"could not read from file. Make sure the path exists."
-                                  userInfo:nil];
-    
-    NSException* exceptionCharacter = [[NSException alloc]
-                                       initWithName:@"SMBVector character error"
-                                       reason:@"Fossa found matrix entry of wrong type!"
-                                       userInfo:nil];
-
-    NSException* exceptionStart = [[NSException alloc]
-                                  initWithName:@"SMBVector start character error"
-                                  reason:@"could not find start character in file. Make sure it exists."
-                                  userInfo:nil];
-    // proof if file exists
-    NSFileManager* fm = [[NSFileManager alloc] init];
-    if(![fm fileExistsAtPath:fileName]){
-        [exceptionFile raise];
-        return;
-    }
-    // define error
-    NSError* error;
-    error = nil;
-    // load file
-    NSString* rawFileContent = [NSString stringWithContentsOfFile: fileName
-                                                         encoding:NSUTF8StringEncoding
-                                                            error:&error];
-    if(error != nil){
-        NSLog(@"Fossa detected an error:\n%@", error);
-	return;
-    }
-    //convert string contents to NSNumber
-    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-    formatter.numberStyle = NSNumberFormatterDecimalStyle;
-    [formatter setDecimalSeparator:@"."];
-    NSArray* rows = [rawFileContent componentsSeparatedByString:@"\n"];
-    bool foundStart = false;
-    for(NSString* row in rows){
-        NSRange range = [row  rangeOfString:startCharacter];
-        if (range.location != NSNotFound){
-            foundStart = true;
-            continue;
-        }
-        if(foundStart){
-            NSArray* columns = [row componentsSeparatedByString:@","];
-            for(NSString* stringEntry in columns){
-                NSNumber* numberEntry = [formatter numberFromString:stringEntry];
-                if(numberEntry != nil){
-                    [_data addObject: numberEntry];
-                }
-                else{
-                    [exceptionCharacter raise];
-                    return;
-                }
-            }
-            [self setNumberOfEntries: [_data count]];
-            break;
-        }
-    }
-    if(!foundStart){
-	[exceptionStart raise];
-    }
-    [exceptionFile release];
-    [exceptionCharacter release];
-    [fm release];
-    [error release];
-    [rawFileContent release];
-    [rows release];
-    return;
+	_numberOfEntries = [_data count];
 }
 
 //proof functions
