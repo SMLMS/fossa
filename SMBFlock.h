@@ -29,63 +29,61 @@
 #define SMBFlock_h
 
 #import <Foundation/Foundation.h>
-#import"SMBActions.h"
-#import"SMBHistogram.h"
-#import"SMBFileNames.h"
+#import "SMBActions.h"
+#import "SMBDataFrame.h"
+#import "SMBFileNames.h"
+#import "SMBMatrix.h"
+#import "SMBModelImporter.h"
+#import "SMBVector.h"
 
 @interface SMBFlock : NSObject
 {
-	unsigned _numberOfMolecules;
-	double _p;
-	double _d;
-	NSMutableArray* _moleculePDF;
-	NSMutableArray* _moleculeCDF;
-	NSMutableArray* _molecules;
+	NSNumber* _tmax;
+	NSNumber* _t;
+	SMBDataFrame* _data;
+	SMBVector* _reactionConstants;
+	SMBVector* _stateVector;
+	SMBMatrix* _eductMatrix;
+	SMBMatrix* _productMatrix;
 	SMBActions* _actions;
-	SMBHistogram* _histogram;
 	SMBFileNames* _fileNames;
 }
 
 //initializers
 -(id) init;
 
-//mutators
--(void) setNumberOfMolecules:(unsigned) data;
--(void) setP:(double) data;
--(void) setD:(double) data;
--(void) setMoleculePDF:(NSMutableArray*) data;
-
 //import functions
--(void) importParser:(NSMutableArray*) data;
--(void) calculateCDF;
+-(void) parseArguments:(NSNumber*) tValue :(NSString*) fileName;
+-(bool) importModel;
+//-(void) calculateCDF;
 
 //search functions
--(unsigned) binarySearchCDF:(double) data;
+//-(unsigned) binarySearchCDF:(double) data;
 
 // simulation functions
--(unsigned) simMoleculeType;
--(void) initActions;
--(void) initMolecules;
--(void) runSimulation;
--(void) determineBlinkingStatistics;
+//-(unsigned) simMoleculeType;
+//-(void) initActions;
+//-(void) initMolecules;
+//-(void) runSimulation;
+//-(void) determineBlinkingStatistics;
 
 //proof functions
--(bool) checkPDF;
--(bool) checkProbability:(double) data;
+//-(bool) checkPDF;
+//-(bool) checkProbability:(double) data;
 -(bool) checkFlockValidity;
 
 //write functions
--(void) logSimulation;
--(void) writeSimulationParameterToFile:(NSMutableString*) data;
--(void) writeSimulationResultToFile:(NSMutableString*) data;
--(void) writeSimulationStatisticsToFile:(NSMutableString*) data;
--(void) writeSimulationHistogramToFile:(NSMutableString*) data;
+//-(void) logSimulation;
+//-(void) writeSimulationParameterToFile:(NSMutableString*) data;
+//-(void) writeSimulationResultToFile:(NSMutableString*) data;
+//-(void) writeSimulationStatisticsToFile:(NSMutableString*) data;
+//-(void) writeSimulationHistogramToFile:(NSMutableString*) data;
 
 //print functions
--(void) printFlockParameter;
--(void) printMolecules;
--(void) printProbabilityError:(double) data;
--(void) printPDFError;
+-(void) printFlock;
+//-(void) printMolecules;
+//-(void) printProbabilityError:(double) data;
+//-(void) printPDFError;
 
 //deallocator
 -(void) dealloc;

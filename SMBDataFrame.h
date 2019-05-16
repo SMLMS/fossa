@@ -32,13 +32,25 @@
 
 @interface SMBDataFrame : NSObject
 {
-    NSMutableString* _fileName;
-    NSUInteger _numberOfEntries;
-    NSUInteger _numberOfReactants;
-    NSMutableArray* _reactantNames;
-    NSMutableArray* _data;
+    NSString* _fileName;
+    NSUInteger _numberOfSpecies;
+    NSMutableArray* _stateData;
+    NSMutableArray* _timeData;
 }
 
+//initializors
+-(id)init;
+
+//properties
+-(void) setFileName:(NSString*) value;
+-(void) setNumberOfSpecies:(NSUInteger) value;
+
+//special functions
+-(void) growDataFrameWith:(NSMutableArray*) stateVector at :(NSNumber*) timePoint;
+-(void) writeDataFrameToCsv;
+
+//deallocator
+-(void) dealloc;
 
 @end
 #endif /* SMBDataFrame_h */

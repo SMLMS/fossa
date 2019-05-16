@@ -26,20 +26,17 @@
 #######################################################################*/
 
 #import <Foundation/Foundation.h>
+#import "SMBFlock.h"
 #import "SMBParser.h"
-#import "SMBFileNames.h"
-#import "SMBMatrix.h"
-#import "SMBModelImporter.h"
-#import "SMBVector.h"
 
 int main(int argc, const char * argv[]) {
     // set up manual reference counting (MRC) environment
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    // set up command line argument parsing class
     SMBParser* parser = [[[SMBParser alloc] init] autorelease];
-    SMBFileNames* fileNames = [[[SMBFileNames alloc] init] autorelease];
-    NSMutableString* fileName =[[[NSMutableString alloc] init] autorelease];
-    [fileName appendString:@"/home/malkusch/Dokumente/fossaTest/model.txt"];
-
+    // set up flock of molecules
+    SMBFlock* flock = [[[SMBFlock alloc] init] autorelease];
+    // import and proof all parameters
     [parser importCommandLineArguments:argc :argv];
     if([parser searchForHelpRequest]){
 	[pool drain];
@@ -49,48 +46,20 @@ int main(int argc, const char * argv[]) {
 	[pool drain];
         return EXIT_FAILURE;
     }
-    [fileNames setParameterFileName: [parser fileName]];
-    [fileNames createFileNames];
-    [fileNames printFileNames];
-
-    SMBModelImporter* mi = [[[SMBModelImporter alloc] init] autorelease];
-    SMBVector* amountVector = [[[SMBVector alloc] init] autorelease];
-    SMBVector* reactionConstants = [[[SMBVector alloc] init] autorelease];
-    SMBMatrix* eductMatrix = [[[SMBMatrix alloc] init] autorelease];
-    SMBMatrix* productMatrix = [[[SMBMatrix alloc] init] autorelease];
-
-    [mi setFileName: fileName];
-    if(![mi proofIfFileName]){
-        [pool drain];
-        return EXIT_FAILURE;
+    [flock parseArguments: [parser tmax] : [parser fileName]];
+    if(![flock importModel]){
+	[pool drain];
+	return EXIT_FAILURE;
     }
-
-    [mi readCsv];
-    @try{
-        [amountVector setData: [mi subModelFrom:@"* start" to:@"* stop"]];
-        [amountVector calculateNumberOfEntries];
-        [reactionConstants setData: [mi subModelFrom:@"§ start" to:@"§ stop"]];
-        [reactionConstants calculateNumberOfEntries];
-        [eductMatrix setNumberOfColumns: [reactionConstants numberOfEntries]];
-        [eductMatrix setNumberOfRows: [amountVector numberOfEntries]];
-        [productMatrix setNumberOfColumns: [reactionConstants numberOfEntries]];
-        [productMatrix setNumberOfRows: [amountVector numberOfEntries]];
-        [eductMatrix setData: [mi subModelFrom:@"$ start" to:@"$ stop"]];
-        [productMatrix setData: [mi subModelFrom:@"# start" to:@"# stop"]];
+    if(![flock checkFlockValidity]){
+	[pool drain];
+	return EXIT_FAILURE;
     }
-    @catch(NSException* exception){
-        NSLog(@"Fossa caught an exception:\n %@", exception);
-        [pool drain];
-        return EXIT_FAILURE;
-    }
-    [amountVector printVectorAsInt];
-    [reactionConstants printVectorAsFloat];
-    if([eductMatrix proofMatrixDimensions]){
-        [eductMatrix printMatrix];
-    }
-    if([productMatrix proofMatrixDimensions]){
-        [productMatrix printMatrix];
-    }
+    // run simulation
+    [flock printFlock];
+    //[flock initActions];
+    //[flock simulate];
+    //[flock logSimulation];
     [pool drain];
     return EXIT_SUCCESS;
 }

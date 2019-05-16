@@ -74,13 +74,18 @@
 
 -(void) createBaseName
 {
-	NSMutableString* extension = [[NSMutableString alloc] initWithString:@"."];
-	[_baseName deleteCharactersInRange: NSMakeRange(0, [_baseName length])];
-	[extension appendString: [_parameterFileName pathExtension]];
-	NSRange extRange = [_parameterFileName  rangeOfString:extension];
-	NSRange baseRange = NSMakeRange(0, extRange.location);
-	[_baseName appendString: [_parameterFileName substringWithRange:baseRange]];
-	[extension release];
+	@try{
+	    NSMutableString* extension = [[NSMutableString alloc] initWithString:@"."];
+	    [_baseName deleteCharactersInRange: NSMakeRange(0, [_baseName length])];
+	    [extension appendString: [_parameterFileName pathExtension]];
+	    NSRange extRange = [_parameterFileName  rangeOfString:extension];
+	    NSRange baseRange = NSMakeRange(0, extRange.location);
+	    [_baseName appendString: [_parameterFileName substringWithRange:baseRange]];
+	    [extension release];
+   	}
+	@catch(NSException* exception){
+            NSLog(@"Fossa caught an exception:\n %@\nmaybe the path to the model is missing a file declaration '.txt'?", exception);
+	}
 }
 
 -(void) createResultFileName
