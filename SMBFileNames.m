@@ -1,8 +1,8 @@
 /* ######################################################################
 * File Name: SMBFileNames.m
-* Project: SSP
-* Version: 18.11
-* Creation Date: 27.11.2018
+* Project: Fossa
+* Version: 19.05
+* Creation Date: 16.05.2019
 * Created By: Sebastian Malkusch
 * Contact: <malkusch@chemie.uni-frankfurt.de>
 * Company: Goethe University of Frankfurt
@@ -35,150 +35,118 @@
 	self = [super init];
 	if(self){
 		_creationTime = [[NSDate alloc] init];
-		_simParameterFileName = [[NSMutableString alloc] init];
-		_simResultFileName = [[NSMutableString alloc] init];
-		_simStatisticsFileName = [[NSMutableString alloc] init];
-		_simHistFileName = [[NSMutableString alloc] init];
+		_baseName = [[NSMutableString alloc] init];
+		_parameterFileName = [[NSString alloc] init];
+		_resultFileName = [[NSMutableString alloc] init];
 	}
 	return self;
 }
 
-//mutators
--(NSMutableString*) simParameterFileName
+//properties
+-(NSMutableString*) baseName
 {
-	return _simParameterFileName;
+	return _baseName;
 }
 
--(NSMutableString*) simResultFileName
+-(NSString*) parameterFileName
 {
-	return _simResultFileName;
+	return _parameterFileName;
 }
 
--(NSMutableString*) simStatisticsFileName
+-(void) setParameterFileName:(NSString*) value
 {
-	return _simStatisticsFileName;
+	[value retain];
+	[_parameterFileName release];
+	_parameterFileName = value;
 }
 
--(NSMutableString*) simHistFileName
+-(NSMutableString*) resultFileName
 {
-	return _simHistFileName;
+	return _resultFileName;
 }
 
 //creation Frunctions
 -(void) createFileNames
 {
-	[self createSimParameterFileName];
-	[self createSimResultFileName];
-	[self createSimStatisticsFileName];
-	[self createSimHistFileName];
+	[self createBaseName];
+	[self createResultFileName];
 }
 
--(void) createSimParameterFileName
+-(void) createBaseName
 {
-	[_simParameterFileName deleteCharactersInRange: NSMakeRange(0, [_simParameterFileName length])];
-	[_simParameterFileName appendString: @"ssp_at_"];
-	[_simParameterFileName appendString: [_creationTime description]];
-	[_simParameterFileName appendString: @"_parameter.txt"];
-	[_simParameterFileName replaceCharactersInRange: NSMakeRange(17,1) withString: @"_"];
-	[_simParameterFileName replaceCharactersInRange: NSMakeRange(20,1) withString: @"-"];
-	[_simParameterFileName replaceCharactersInRange: NSMakeRange(23,1) withString: @"-"];
-	[_simParameterFileName replaceCharactersInRange: NSMakeRange(26,7) withString: @"_"];	
+	NSMutableString* extension = [[NSMutableString alloc] initWithString:@"."];
+	[_baseName deleteCharactersInRange: NSMakeRange(0, [_baseName length])];
+	[extension appendString: [_parameterFileName pathExtension]];
+	NSRange extRange = [_parameterFileName  rangeOfString:extension];
+	NSRange baseRange = NSMakeRange(0, extRange.location);
+	[_baseName appendString: [_parameterFileName substringWithRange:baseRange]];
+	[extension release];
 }
 
--(void) createSimResultFileName
+-(void) createResultFileName
 {
-	[_simResultFileName deleteCharactersInRange: NSMakeRange(0, [_simResultFileName length])];
-	[_simResultFileName appendString: @"ssp_at_"];
-	[_simResultFileName appendString: [_creationTime description]];
-	[_simResultFileName appendString: @"_results.txt"];
-	[_simResultFileName replaceCharactersInRange: NSMakeRange(17,1) withString: @"_"];
-	[_simResultFileName replaceCharactersInRange: NSMakeRange(20,1) withString: @"-"];
-	[_simResultFileName replaceCharactersInRange: NSMakeRange(23,1) withString: @"-"];
-	[_simResultFileName replaceCharactersInRange: NSMakeRange(26,7) withString: @"_"];
-}
-
--(void) createSimStatisticsFileName
-{
-	[_simStatisticsFileName deleteCharactersInRange: NSMakeRange(0, [_simStatisticsFileName length])];
-	[_simStatisticsFileName appendString: @"ssp_at_"];
-	[_simStatisticsFileName appendString: [_creationTime description]];
-	[_simStatisticsFileName appendString: @"_statistics.txt"];
-	[_simStatisticsFileName replaceCharactersInRange: NSMakeRange(17,1) withString: @"_"];
-	[_simStatisticsFileName replaceCharactersInRange: NSMakeRange(20,1) withString: @"-"];
-	[_simStatisticsFileName replaceCharactersInRange: NSMakeRange(23,1) withString: @"-"];
-	[_simStatisticsFileName replaceCharactersInRange: NSMakeRange(26,7) withString: @"_"];
-}
-
--(void) createSimHistFileName
-{
-	[_simHistFileName deleteCharactersInRange: NSMakeRange(0, [_simHistFileName length])];
-	[_simHistFileName appendString: @"ssp_at_"];
-	[_simHistFileName appendString: [_creationTime description]];
-	[_simHistFileName appendString: @"_histogram.txt"];
-	[_simHistFileName replaceCharactersInRange: NSMakeRange(17,1) withString: @"_"];
-	[_simHistFileName replaceCharactersInRange: NSMakeRange(20,1) withString: @"-"];
-	[_simHistFileName replaceCharactersInRange: NSMakeRange(23,1) withString: @"-"];
-	[_simHistFileName replaceCharactersInRange: NSMakeRange(26,7) withString: @"_"];
+	NSMutableString* suffix = [[NSMutableString alloc] init];
+	[_resultFileName deleteCharactersInRange: NSMakeRange(0, [_resultFileName length])];
+	[_resultFileName appendString: _baseName];
+	[_resultFileName appendString: @"_"];
+	[suffix appendString: @"ssa_at_"];
+	[suffix appendString: [_creationTime description]];
+	[suffix appendString: @"_results.txt"];
+	[suffix replaceCharactersInRange: NSMakeRange(17,1) withString: @"_"];
+	[suffix replaceCharactersInRange: NSMakeRange(20,1) withString: @"-"];
+	[suffix replaceCharactersInRange: NSMakeRange(23,1) withString: @"-"];
+	[suffix replaceCharactersInRange: NSMakeRange(26,7) withString: @"_"];
+	[_resultFileName appendString: suffix];
+	[suffix release];
 }
 
 //print Functions
 -(void) printFileNames
 {
-	NSLog(@"ssp file names:\n");
-	[self printSimParameterFileName];
-	[self printSimResultFileName];
-	[self printSimStatisticsFileName];
-	[self printSimHistFileName];
+	NSLog(@"fossa file names:\n");
+	[self printBaseName];
+	[self printParameterFileName];
+	[self printResultFileName];
 }
 
--(void) printSimParameterFileName
+-(void) printBaseName
 {
 	NSMutableString* message = [[NSMutableString alloc] init];
-	[message appendString: @"ssp parameter file name:\n"];
-	[message appendFormat: @"%@\n", _simParameterFileName];
+	[message appendString: @"fossa base name:\n"];
+	[message appendFormat: @"%@\n", _baseName];
 	NSLog(@"%@", message);
 	[message release];
 }
 
--(void) printSimResultFileName
+-(void) printParameterFileName
 {
 	NSMutableString* message = [[NSMutableString alloc] init];
-	[message appendString: @"ssp result file name:\n"];
-	[message appendFormat: @"%@\n", _simResultFileName];
+	[message appendString: @"fossa parameter file name:\n"];
+	[message appendFormat: @"%@\n", _parameterFileName];
 	NSLog(@"%@", message);
 	[message release];
 }
 
--(void) printSimStatisticsFileName
+-(void) printResultFileName
 {
 	NSMutableString* message = [[NSMutableString alloc] init];
-	[message appendString: @"ssp statistics file name:\n"];
-	[message appendFormat: @"%@\n", _simStatisticsFileName];
+	[message appendString: @"fossa result file name:\n"];
+	[message appendFormat: @"%@\n", _resultFileName];
 	NSLog(@"%@", message);
 	[message release];
 }
 
--(void) printSimHistFileName
-{
-	NSMutableString* message = [[NSMutableString alloc] init];
-	[message appendString: @"ssp histogram file name:\n"];
-	[message appendFormat: @"%@\n", _simHistFileName];
-	NSLog(@"%@", message);
-	[message release];
-}
 //deallocator
 -(void) deallocate
 {
 	[_creationTime release];
 	_creationTime = nil;
-	[_simParameterFileName release];
-	_simParameterFileName = nil;
-	[_simResultFileName release];
-	_simResultFileName = nil;
-	[_simStatisticsFileName release];
-	_simStatisticsFileName = nil;
-	[_simHistFileName release];
-	_simHistFileName = nil;
+	[_baseName release];
+	_baseName = nil;
+	[_parameterFileName release];
+	_parameterFileName = nil;
+	[_resultFileName release];
+	_resultFileName = nil;
 	[super dealloc];
 }
 @end;

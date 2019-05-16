@@ -1,8 +1,8 @@
 /* ######################################################################
-* File Name: SMBActions.h
+* File Name: SMBParser.h
 * Project: Fossa
-* Version: 18.10
-* Creation Date: 10.10.2018
+* Version: 19.05
+* Creation Date: 19.05.2019
 * Created By: Sebastian Malkusch
 * Contact: <malkusch@chemie.uni-frankfurt.de>
 * Company: Goethe University of Frankfurt
@@ -23,23 +23,50 @@
 
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#######################################################################*/
+#####################################################################*/
 
-#ifndef SMBActions_h
-#define SMBActions_h
+#ifndef SMBParser_h
+#define SMBParser_h
 
 #import <Foundation/Foundation.h>
 
-@interface SMBActions : NSObject
+@interface SMBParser: NSObject
 {
-	// no instance variables
+	NSUInteger _argc;
+        NSMutableArray* _argv;
+	NSString* _fileName;
+        NSNumber* _tmax;
 }
+
+//initializer
 -(id) init;
--(void) runActions;
+
+//mutators
+-(NSUInteger) argc;
+-(NSMutableArray*) argv;
+-(NSString*) fileName;
+-(NSNumber*) tmax;
+
+//special functions
+-(void) importCommandLineArguments:(int) size :(const char**) data;
+
+-(bool) searchForHelpRequest;
+-(bool) extractFileNameArgument;
+-(bool) extractTmaxArgument;
+-(bool) checkParserLength;
+-(bool) extractParserInformation;
+
+//print functions
+-(void) printInfo;
+-(void) printHelp;
+-(void) printFalseTmaxArgument;
+-(void) printMissingTmaxArgument;
+-(void) printMissingFileNameArgument;
+-(void) printShortParser;
+//deallocator
 -(void) dealloc;
 
 @end
-
 #endif
 
 

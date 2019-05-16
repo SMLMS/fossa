@@ -1,8 +1,8 @@
 /* ######################################################################
-* File Name:
-* Project: 
-* Version:
-* Creation Date:
+* File Name: SMBFileNames.h
+* Project: Fossa
+* Version: 19.05
+* Creation Date: 16.05.2019
 * Created By: Sebastian Malkusch
 * Contact: <malkusch@chemie.uni-frankfurt.de>
 * Company: Goethe University of Frankfurt
@@ -33,34 +33,30 @@
 @interface SMBFileNames : NSObject
 {
 	NSDate* _creationTime;
-	NSMutableString* _simParameterFileName;
-	NSMutableString* _simResultFileName;
-	NSMutableString* _simStatisticsFileName;
-	NSMutableString* _simHistFileName;
+	NSMutableString* _baseName;
+	NSString* _parameterFileName;
+	NSMutableString* _resultFileName;
 }
 
 //initializer
 -(id) init;
 
-//mutators
--(NSMutableString*) simParameterFileName;
--(NSMutableString*) simResultFileName;
--(NSMutableString*) simStatisticsFileName;
--(NSMutableString*) simHistFileName;
+//properties
+-(NSMutableString*) baseName;
+-(NSString*) parameterFileName;
+-(void) setParameterFileName:(NSString*) value;
+-(NSMutableString*) resultFileName;
 
 //creation Fuctions
 -(void) createFileNames;
--(void) createSimParameterFileName;
--(void) createSimResultFileName;
--(void) createSimStatisticsFileName;
--(void) createSimHistFileName;
+-(void) createBaseName;
+-(void) createResultFileName;
 
 //print Functions
 -(void) printFileNames;
--(void) printSimParameterFileName;
--(void) printSimResultFileName;
--(void) printSimStatisticsFileName;
--(void) printSimHistFileName;
+-(void) printBaseName;
+-(void) printParameterFileName;
+-(void) printResultFileName;
 //deallocator
 -(void) deallocate;
 @end;

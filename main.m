@@ -26,6 +26,8 @@
 #######################################################################*/
 
 #import <Foundation/Foundation.h>
+#import "SMBParser.h"
+#import "SMBFileNames.h"
 #import "SMBMatrix.h"
 #import "SMBModelImporter.h"
 #import "SMBVector.h"
@@ -33,8 +35,23 @@
 int main(int argc, const char * argv[]) {
     // set up manual reference counting (MRC) environment
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    SMBParser* parser = [[[SMBParser alloc] init] autorelease];
+    SMBFileNames* fileNames = [[[SMBFileNames alloc] init] autorelease];
     NSMutableString* fileName =[[[NSMutableString alloc] init] autorelease];
     [fileName appendString:@"/home/malkusch/Dokumente/fossaTest/model.txt"];
+
+    [parser importCommandLineArguments:argc :argv];
+    if([parser searchForHelpRequest]){
+	[pool drain];
+	return EXIT_SUCCESS;
+    }
+    if(![parser extractParserInformation]){
+	[pool drain];
+        return EXIT_FAILURE;
+    }
+    [fileNames setParameterFileName: [parser fileName]];
+    [fileNames createFileNames];
+    [fileNames printFileNames];
 
     SMBModelImporter* mi = [[[SMBModelImporter alloc] init] autorelease];
     SMBVector* amountVector = [[[SMBVector alloc] init] autorelease];

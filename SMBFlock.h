@@ -1,8 +1,8 @@
 /* ######################################################################
 * File Name: SMBFlock.h
-* Project: SSP
-* Version: 18.10
-* Creation Date: 10.10.2018
+* Project: Fossa
+* Version: 19.05
+* Creation Date: 19.05.2019
 * Created By: Sebastian Malkusch
 * Contact: <malkusch@chemie.uni-frankfurt.de>
 * Company: Goethe University of Frankfurt
