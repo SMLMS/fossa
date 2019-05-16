@@ -63,7 +63,7 @@
     _numberOfEntries = value;
 }
 
--(NSMutableArray*) _data{
+-(NSMutableArray*) data{
     return _data;
 }
 

@@ -70,17 +70,16 @@
     //open file
     if ((stream = fopen([_fileName UTF8String], "w")) != NULL){
     //write header
-        fprintf(stream, "#R0");
-        for (NSUInteger i=1; i<_numberOfSpecies; i++){
-            fprintf(stream, ",%lu", i);
+        fprintf(stream, "#t");
+        for (NSUInteger i=0; i<_numberOfSpecies; i++){
+            fprintf(stream, ",R%lu", i);
         }
         fprintf(stream, "\n");
     //write time and state Data line by line
-        fprintf(stream, "#molecule\tsites\tactivity\tfluorescence events\n");
 	for (NSUInteger i=0; i<[_stateData count]; i++){
-            fprintf(stream, "%i", [[_timeData objectAtIndex:i] intValue]);
+            fprintf(stream, "%.3f", [[_timeData objectAtIndex:i] floatValue]);
             for (NSNumber* tempData in [_stateData objectAtIndex: i]){
-                fprintf(stream, "i,%i", [tempData intValue]);
+                fprintf(stream, ",%i", [tempData intValue]);
             }
             fprintf(stream, "\n");
         }

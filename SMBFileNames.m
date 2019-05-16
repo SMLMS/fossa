@@ -96,7 +96,7 @@
 	[_resultFileName appendString: @"_"];
 	[suffix appendString: @"ssa_at_"];
 	[suffix appendString: [_creationTime description]];
-	[suffix appendString: @"_results.txt"];
+	[suffix appendString: @"_results.csv"];
 	[suffix replaceCharactersInRange: NSMakeRange(17,1) withString: @"_"];
 	[suffix replaceCharactersInRange: NSMakeRange(20,1) withString: @"-"];
 	[suffix replaceCharactersInRange: NSMakeRange(23,1) withString: @"-"];

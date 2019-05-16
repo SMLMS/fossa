@@ -64,7 +64,7 @@
 //-(unsigned) simMoleculeType;
 //-(void) initActions;
 //-(void) initMolecules;
-//-(void) runSimulation;
+-(void) runSimulation;
 //-(void) determineBlinkingStatistics;
 
 //proof functions
@@ -73,7 +73,7 @@
 -(bool) checkFlockValidity;
 
 //write functions
-//-(void) logSimulation;
+-(void) logSimulation;
 //-(void) writeSimulationParameterToFile:(NSMutableString*) data;
 //-(void) writeSimulationResultToFile:(NSMutableString*) data;
 //-(void) writeSimulationStatisticsToFile:(NSMutableString*) data;

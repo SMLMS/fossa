@@ -41,7 +41,7 @@
 //properties
 -(NSUInteger) numberOfEntries;
 -(void) setNumberOfEntries:(NSUInteger) value;
--(NSMutableArray*) _data;
+-(NSMutableArray*) data;
 -(void) setData:(NSMutableArray*) dataArray;
 
 //mutators

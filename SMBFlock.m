@@ -36,7 +36,7 @@
     self=[super init];
     if(self){
         _tmax = [[NSNumber alloc] init];
-	_t = [[NSNumber alloc] init];
+	_t = [[NSNumber alloc] initWithFloat: 0.0];
         _data = [[SMBDataFrame alloc] init];
         _reactionConstants = [[SMBVector alloc] init];
         _stateVector = [[SMBVector alloc] init];
@@ -87,6 +87,19 @@
     }
     [mi release];
     return success;
+}
+// simulation functions
+-(void) runSimulation
+{
+    [_data setNumberOfSpecies: [_stateVector numberOfEntries]];
+    [_data growDataFrameWith: [_stateVector data] at :(NSNumber*) _t];
+}
+
+//write functions
+-(void) logSimulation
+{
+    [_data setFileName: [_fileNames resultFileName]];
+    [_data writeDataFrameToCsv];
 }
 
 //proof functions
