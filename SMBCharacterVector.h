@@ -1,8 +1,8 @@
 /* ######################################################################
- * File Name: SMBDataFrame.h
+ * File Name: SMBCharacterVector.h
  * Project: fossa
  * Version: 19.05
- * Creation Date: 14.05.2019
+ * Creation Date: 11.05.2019
  * Created By: Sebastian Malkusch
  * Contact: <malkusch@chemie.uni-frankfurt.de>
  * Company: Goethe University of Frankfurt
@@ -25,32 +25,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  #######################################################################*/
 
-#ifndef SMBDataFrame_h
-#define SMBDataFrame_h
+#ifndef SMBCharacterVector_h
+#define SMBCharacterVector_h
+#import "SMBVector.h"
 
-#import "SMBNumericVector.h"
-
-@interface SMBDataFrame : NSObject
+@interface SMBCharacterVector : SMBVector
 {
-    NSString* _fileName;
-    NSUInteger _numberOfSpecies;
-    NSMutableArray* _stateData;
-    NSMutableArray* _timeData;
+    
 }
 
-//initializors
--(id)init;
+//initializor
+-(id)initWithSize:(NSUInteger) value;
 
-//properties
--(void) setFileName:(NSString*) value;
--(void) setNumberOfSpecies:(NSUInteger) value;
-
-//special functions
--(void) growDataFrameWith:(NSMutableArray*) stateVector at :(NSNumber*) timePoint;
--(void) writeDataFrameToCsv;
-
-//deallocator
--(void) dealloc;
+//mutators
+-(NSMutableString*) objectAtIndex:(NSUInteger) idx;
+-(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSMutableArray*)object;
 
 @end
-#endif /* SMBDataFrame_h */
+#endif /* SMBNumericVector_h */
+

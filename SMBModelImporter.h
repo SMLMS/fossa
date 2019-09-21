@@ -44,7 +44,8 @@
 -(NSString*) _data;
 
 //mutators
--(NSMutableArray*) subModelFrom:(NSString*) startSeq to:(NSString*) stopSeq;
+-(NSMutableArray*) importCharacterModelItemFrom:(NSString*) startSeq to:(NSString*) stopSeq;
+-(NSMutableArray*) importNumericModelItemFrom:(NSString*) startSeq to:(NSString*) stopSeq;
 
 //load functions
 -(void) readCsv;

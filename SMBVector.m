@@ -40,19 +40,6 @@
     return self;
 }
 
--(id) initWithSize:(NSUInteger)value
-{
-    self=[super init];
-    if(self){
-        _numberOfEntries = value;
-        _data = [[NSMutableArray alloc] init];
-        for (NSUInteger i=0; i<value; i++){
-            [_data addObject:[NSNumber numberWithInt:0]];
-        }
-    }
-    return self;
-}
-
 //properties
 -(NSUInteger) numberOfEntries{
     return _numberOfEntries;
@@ -75,31 +62,6 @@
 }
 
 //mutators
--(NSNumber*) objectAtIndex:(NSUInteger) idx
-{
-    NSException* exception = [[NSException alloc]
-                              initWithName:@"SMBVector out of range error"
-                              reason:@"objectAtIndex points to an entry that exceeds matrix dimensions"
-                              userInfo:nil];
-    if(![self proofIfEntryExists:idx]){
-        [exception raise];
-    }
-    return [_data objectAtIndex: idx];
-}
-
--(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*)object
-{
-    NSException* exception = [[NSException alloc]
-                              initWithName:@"SMBVector out of range error"
-                              reason:@"replaceObjectAtIndex points to an entry that exceeds matrix dimensions"
-                              userInfo:nil];
-    if(![self proofIfEntryExists:idx]){
-        [exception raise];
-    }
-    [_data replaceObjectAtIndex:idx
-                     withObject:object];
-}
-
 -(void) calculateNumberOfEntries
 {
 	_numberOfEntries = [_data count];
@@ -125,24 +87,12 @@
 }
 
 //print Methods
--(void) printVectorAsInt
+-(void) printVector
 {
     NSMutableString* message = [[NSMutableString alloc] init];
     [message appendString:@"\n"];
     for (NSUInteger i=0; i<_numberOfEntries; i++){
-        [message appendFormat:@"%i\t", [[_data objectAtIndex: i] intValue]];
-    }
-    [message appendString:@"\n"];
-    NSLog(@"%@", message);
-    [message release];
-}
-
--(void) printVectorAsFloat
-{
-    NSMutableString* message = [[NSMutableString alloc] init];
-    [message appendString:@"\n"];
-    for (NSUInteger i=0; i<_numberOfEntries; i++){
-        [message appendFormat:@"%.3f\t", [[_data objectAtIndex: i] doubleValue]];
+        [message appendFormat:@"%@\t", [_data objectAtIndex: i]];
     }
     [message appendString:@"\n"];
     NSLog(@"%@", message);
@@ -152,7 +102,7 @@
 //deallocator
 -(void) dealloc
 {
-    NSLog(@"Vector deallocated");
+    NSLog(@"SMBVector deallocated");
     [_data release];
     _data = nil;
     [super dealloc];

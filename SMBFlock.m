@@ -36,10 +36,12 @@
     self=[super init];
     if(self){
         _tmax = [[NSNumber alloc] init];
-	_t = [[NSNumber alloc] initWithFloat: 0.0];
+        _t = [[NSNumber alloc] initWithFloat: 0.0];
         _data = [[SMBDataFrame alloc] init];
-        _reactionConstants = [[SMBVector alloc] init];
-        _stateVector = [[SMBVector alloc] init];
+        _species = [[SMBCharacterVector alloc] init];
+        _transitions = [[SMBCharacterVector alloc] init];
+        _reactionConstants = [[SMBNumericVector alloc] init];
+        _stateVector = [[SMBNumericVector alloc] init];
         _eductMatrix = [[SMBMatrix alloc] init];
         _productMatrix = [[SMBMatrix alloc] init];
         _actions = [[SMBActions alloc] init];
@@ -69,19 +71,31 @@
     if(success){
         [mi readCsv];
     	@try{
-            [_stateVector setData: [mi subModelFrom:@"* start" to:@"* stop"]];
+            [_species setData: [mi importCharacterModelItemFrom:@"begin(species)" to:@"end(species)"]];
+            [_species calculateNumberOfEntries];
+            [_transitions setData: [mi importCharacterModelItemFrom:@"begin(transitions)" to:@"end(transitions)"]];
+            [_transitions calculateNumberOfEntries];
+            [_stateVector setData: [mi importNumericModelItemFrom:@"begin(initStates)" to:@"end(initStates)"]];
             [_stateVector calculateNumberOfEntries];
-            [_reactionConstants setData: [mi subModelFrom:@"§ start" to:@"§ stop"]];
+            [_reactionConstants setData: [mi importNumericModelItemFrom:@"begin(reactionConstants)" to:@"end(reactionConstants)"]];
             [_reactionConstants calculateNumberOfEntries];
             [_eductMatrix setNumberOfColumns: [_reactionConstants numberOfEntries]];
             [_eductMatrix setNumberOfRows: [_stateVector numberOfEntries]];
             [_productMatrix setNumberOfColumns: [_reactionConstants numberOfEntries]];
             [_productMatrix setNumberOfRows: [_stateVector numberOfEntries]];
-            [_eductMatrix setData: [mi subModelFrom:@"$ start" to:@"$ stop"]];
-            [_productMatrix setData: [mi subModelFrom:@"# start" to:@"# stop"]];
+            [_eductMatrix setData: [mi importNumericModelItemFrom:@"begin(educts)" to:@"end(educts)"]];
+            [_productMatrix setData: [mi importNumericModelItemFrom:@"begin(products)" to:@"end(products)"]];
         }
         @catch(NSException* exception){
             NSLog(@"Fossa caught an exception:\n %@", exception);
+            success = false;
+        }
+        if([_species numberOfEntries] != [_stateVector numberOfEntries]){
+            NSLog(@"Fossa model error: species and initStates need to be of the same length!");
+            success = false;
+        }
+        if([_transitions numberOfEntries] != [_reactionConstants numberOfEntries]){
+            NSLog(@"Fossa model error: transitions and reactionConstants need to be of the same length!");
             success = false;
         }
     }
@@ -117,8 +131,12 @@
 {
     NSLog(@"ssa Model:");
     NSLog(@"tmax[s]: %.3f", [_tmax floatValue]);
-    NSLog(@"state vector:");
+    NSLog(@"species:");
+    [_species printVector];
+    NSLog(@"states:");
     [_stateVector printVectorAsInt];
+    NSLog(@"transitions:");
+    [_transitions printVector];
     NSLog(@"reaction constants:");
     [_reactionConstants printVectorAsFloat];
     NSLog(@"educt matrix:");
@@ -136,6 +154,10 @@
     _t = nil;
     [_data release];
     _data = nil;
+    [_species release];
+    _species = nil;
+    [_transitions release];
+    _transitions = nil;
     [_reactionConstants release];
     _reactionConstants = nil;
     [_stateVector release];

@@ -36,7 +36,6 @@
 
 //initializor
 -(id)init;
--(id)initWithSize:(NSUInteger) value;
 
 //properties
 -(NSUInteger) numberOfEntries;
@@ -45,8 +44,6 @@
 -(void) setData:(NSMutableArray*) dataArray;
 
 //mutators
--(NSNumber*) objectAtIndex:(NSUInteger) idx;
--(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*)object;
 -(void) calculateNumberOfEntries;
 
 //proof functions
@@ -54,8 +51,7 @@
 -(bool) proofIfEntryExists:(NSUInteger) idx;
 
 //print Methods
--(void) printVectorAsInt;
--(void) printVectorAsFloat;
+-(void) printVector;
 
 //deallocator
 -(void) dealloc;

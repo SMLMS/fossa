@@ -118,7 +118,7 @@
 {
     NSUInteger arrayLength = [_data count];
     if (arrayLength != _numberOfRows * _numberOfColumns){
-        NSLog(@"Fosser error: The imported matrix does not match the expected matrix dimensions.");
+        NSLog(@"Fossa error: The imported matrix does not match the expected matrix dimensions.");
         return false;
     }
     return true;

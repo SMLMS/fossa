@@ -34,15 +34,18 @@
 #import "SMBFileNames.h"
 #import "SMBMatrix.h"
 #import "SMBModelImporter.h"
-#import "SMBVector.h"
+#import "SMBNumericVector.h"
+#import "SMBCharacterVector.h"
 
 @interface SMBFlock : NSObject
 {
 	NSNumber* _tmax;
 	NSNumber* _t;
 	SMBDataFrame* _data;
-	SMBVector* _reactionConstants;
-	SMBVector* _stateVector;
+    SMBCharacterVector* _species;
+    SMBCharacterVector* _transitions;
+	SMBNumericVector* _reactionConstants;
+	SMBNumericVector* _stateVector;
 	SMBMatrix* _eductMatrix;
 	SMBMatrix* _productMatrix;
 	SMBActions* _actions;

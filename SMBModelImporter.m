@@ -70,7 +70,60 @@
 }
 
 //mutators
--(NSMutableArray*) subModelFrom:(NSString*) startSeq to:(NSString*) stopSeq;
+-(NSMutableArray*) importCharacterModelItemFrom:(NSString*) startSeq to:(NSString*) stopSeq;
+{
+    [startSeq retain];
+    [stopSeq retain];
+    NSException* exceptionCharacter = [[NSException alloc]
+                                  initWithName:@"SMBMatrix character error"
+                                  reason:@"Fossa found matrix entry of wrong type!"
+                                  userInfo:nil];
+    NSMutableArray* subModel = [[NSMutableArray alloc] init];
+    //NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    //formatter.numberStyle = NSNumberFormatterDecimalStyle;
+    //[formatter setDecimalSeparator:@"."];
+    NSArray* rows = [_data componentsSeparatedByString:@"\n"];
+    bool foundStart = false;
+    bool foundStop = false;
+    for(NSString* row in rows){
+        NSRange range = [row  rangeOfString:startSeq];
+        if (range.location != NSNotFound){
+            foundStart = true;
+            continue;
+        }
+        range = [row rangeOfString:stopSeq];
+        if(range.location != NSNotFound){
+            foundStop = true;
+            break;
+        }
+        if(foundStart){
+            NSArray* columns = [row componentsSeparatedByString:@","];
+            for(NSString* stringEntry in columns){
+                //NSNumber* numberEntry = [formatter numberFromString:stringEntry];
+                if(stringEntry != nil){
+                    [subModel addObject: stringEntry];
+                }
+                else{
+                    [exceptionCharacter raise];
+                    break;
+                }
+            }
+        }
+    }
+    if(!foundStart){
+        NSLog(@"Warning: start sequence '%@' not found", startSeq);
+    }
+    if(!foundStop){
+        NSLog(@"Warning: stop sequence '%@' not found", stopSeq);
+    }
+    //[formatter release];
+    [startSeq release];
+    [stopSeq release];
+    [subModel autorelease];
+    return subModel;
+}
+
+-(NSMutableArray*) importNumericModelItemFrom:(NSString*) startSeq to:(NSString*) stopSeq;
 {
     [startSeq retain];
     [stopSeq retain];
