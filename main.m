@@ -39,27 +39,31 @@ int main(int argc, const char * argv[]) {
     // import and proof all parameters
     [parser importCommandLineArguments:argc :argv];
     if([parser searchForHelpRequest]){
-	[pool drain];
-	return EXIT_SUCCESS;
+        [pool drain];
+        return EXIT_SUCCESS;
     }
     if(![parser extractParserInformation]){
-	[pool drain];
+        [pool drain];
         return EXIT_FAILURE;
     }
-    [flock parseArguments: [parser tmax] : [parser fileName]];
+    [flock parseArguments: [parser tmax]: [parser seed]: [parser fileName]];
     if(![flock importModel]){
-	[pool drain];
-	return EXIT_FAILURE;
+        [pool drain];
+        return EXIT_FAILURE;
     }
     if(![flock checkFlockValidity]){
-	[pool drain];
-	return EXIT_FAILURE;
+        [pool drain];
+        return EXIT_FAILURE;
+    }
+    if(![flock checkEductMatrixValidity]){
+        [pool drain];
+        return EXIT_FAILURE;
     }
     // run simulation
     [flock printFlock];
-    //[flock initActions];
+    [flock initActions];
     [flock runSimulation];
-    [flock logSimulation];
+    //[flock logSimulation];
     [pool drain];
     return EXIT_SUCCESS;
 }

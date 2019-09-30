@@ -52,6 +52,7 @@
 
 //print Methods
 -(void) printVector;
+-(NSMutableString*) vectorString;
 
 //deallocator
 -(void) dealloc;

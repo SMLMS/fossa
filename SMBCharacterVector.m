@@ -58,6 +58,7 @@
 
 -(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSMutableArray*)object
 {
+    [object retain];
     NSException* exception = [[NSException alloc]
                               initWithName:@"SMBVector out of range error"
                               reason:@"replaceObjectAtIndex points to an entry that exceeds vector dimensions"
@@ -67,5 +68,6 @@
     }
     [_data replaceObjectAtIndex:idx
                      withObject:object];
+    [object release];
 }
 @end

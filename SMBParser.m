@@ -39,8 +39,9 @@
 		[self printInfo];
 		_argc = 0;
 		_argv = [[NSMutableArray alloc] init];
-                _fileName = [[NSMutableString alloc] init];
-                _tmax = [[NSNumber alloc] init];
+        _fileName = [[NSMutableString alloc] init];
+        _tmax = 0.0;
+        _seed = 0;
 	}
 	return self;
 }
@@ -61,9 +62,14 @@
 	return _fileName;
 }
 
--(NSNumber*) tmax
+-(double) tmax
 {
 	return _tmax;
+}
+
+-(NSUInteger) seed
+{
+    return _seed;
 }
 
 //special functions
@@ -94,15 +100,15 @@
 	for (NSString* entry in _argv){
         	NSRange range = [entry  rangeOfString:@"--model"];
         	if (range.location != NSNotFound){
-            		found = true;
-			continue;
-		}
+                found = true;
+                continue;
+            }
 		if(found){
 			[_fileName release];
 			[entry retain];
 			_fileName = entry;
 			break;
-		}
+        }
 	}
 	return found;
 }
@@ -111,31 +117,54 @@
 {
 	bool found = false;
 	NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-    	formatter.numberStyle = NSNumberFormatterDecimalStyle;
-    	[formatter setDecimalSeparator:@"."];
+    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+    [formatter setDecimalSeparator:@"."];
 	for (NSString* entry in _argv){
         	NSRange range = [entry  rangeOfString:@"--tmax"];
         	if (range.location != NSNotFound){
-            		found = true;
-			continue;
+                found = true;
+                continue;
 		}
 		if(found){
-			[_tmax release];
-			_tmax = [[formatter numberFromString: entry] retain];
-                	if(_tmax == nil){
+			_tmax = [[formatter numberFromString: entry] doubleValue];
+            if(_tmax == NAN){
 				[self printFalseTmaxArgument];
-                    		return false;
-                	}
+                return false;
+            }
 			break;
 		}
 	}
 	return found;
 }
 
+-(bool) extractSeedArgument
+{
+    bool found = false;
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+    [formatter setDecimalSeparator:@"."];
+    for (NSString* entry in _argv){
+        NSRange range = [entry rangeOfString:@"--seed"];
+        if (range.location != NSNotFound){
+            found = true;
+            continue;
+        }
+        if (found){
+            _seed = [[formatter numberFromString: entry] unsignedLongValue];
+            if(_seed == NAN){
+                [self printFalseSeedArgument];
+                return false;
+            }
+            break;
+        }
+    }
+    return found;
+}
+
 -(bool) checkParserLength
 {
 	bool result = true;
-	if ([_argv count] < 4){
+	if ([_argv count] < 6){
 		result = false;
 	}
 	return result;
@@ -155,6 +184,10 @@
 		[self printMissingTmaxArgument];
 		return false;
 	}
+    if(![self extractSeedArgument]){
+        [self printMissingSeedArgument];
+        return false;
+    }
 	return true;
 }
 
@@ -182,6 +215,7 @@
 	[message appendString:@"Fossa Help Message:"];
 	[message appendString:@"\nFossa needs exactly 2 parameters"];
 	[message appendString:@"\n--tmax\t(float)\t tmax value"];
+    [message appendString:@"\n--seed\t(int)\t seed value"];
 	[message appendString:@"\n--model\t(string)\t absolute path to fossa model file"];
 	NSLog(@"%@",message);
 	[message release];
@@ -192,9 +226,19 @@
 	NSLog(@"Error: Input argument '--tmax' is not a number!\n type '--help' for help");
 }
 
+-(void) printFalseSeedArgument
+{
+    NSLog(@"Error: Input argument '--seed' is not a number!\n type '--help' for help");
+}
+
 -(void) printMissingTmaxArgument
 {
 	NSLog(@"Error: Missing '--tmax' argument\ntype '--help' for help");
+}
+
+-(void) printMissingSeedArgument
+{
+    NSLog(@"Error: Missing '--seed' argument\ntype '--help' for help");
 }
 
 -(void) printMissingFileNameArgument
@@ -204,7 +248,7 @@
 
 -(void) printShortParser
 {
-	NSLog(@"Error: Too few parser arguments passed. Exactly 2 are needed!\ntype '--help' for help");
+	NSLog(@"Error: Too few parser arguments passed. Exactly 3 are needed!\ntype '--help' for help");
 }
 
 
@@ -215,8 +259,6 @@
 	_argv = nil;
 	[_fileName release];
 	_fileName = nil;
-	[_tmax release];
-	_tmax = nil;
 	[super dealloc];
 }
 

@@ -33,9 +33,10 @@
 @interface SMBParser: NSObject
 {
 	NSUInteger _argc;
-        NSMutableArray* _argv;
+    NSMutableArray* _argv;
 	NSString* _fileName;
-        NSNumber* _tmax;
+    double _tmax;
+    NSUInteger _seed;
 }
 
 //initializer
@@ -45,7 +46,8 @@
 -(NSUInteger) argc;
 -(NSMutableArray*) argv;
 -(NSString*) fileName;
--(NSNumber*) tmax;
+-(double) tmax;
+-(NSUInteger) seed;
 
 //special functions
 -(void) importCommandLineArguments:(int) size :(const char**) data;
@@ -53,6 +55,7 @@
 -(bool) searchForHelpRequest;
 -(bool) extractFileNameArgument;
 -(bool) extractTmaxArgument;
+-(bool) extractSeedArgument;
 -(bool) checkParserLength;
 -(bool) extractParserInformation;
 
@@ -60,7 +63,9 @@
 -(void) printInfo;
 -(void) printHelp;
 -(void) printFalseTmaxArgument;
+-(void) printFalseSeedArgument;
 -(void) printMissingTmaxArgument;
+-(void) printMissingSeedArgument;
 -(void) printMissingFileNameArgument;
 -(void) printShortParser;
 //deallocator

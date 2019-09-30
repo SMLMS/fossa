@@ -56,8 +56,9 @@
     return [_data objectAtIndex: idx];
 }
 
--(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*)object
+-(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*) object
 {
+    [object retain];
     NSException* exception = [[NSException alloc]
                               initWithName:@"SMBVector out of range error"
                               reason:@"replaceObjectAtIndex points to an entry that exceeds vector dimensions"
@@ -67,9 +68,11 @@
     }
     [_data replaceObjectAtIndex:idx
                      withObject:object];
+    [object release];
 }
 
 //print Methods
+/*
 -(void) printVectorAsInt
 {
     NSMutableString* message = [[NSMutableString alloc] init];
@@ -105,4 +108,5 @@
     NSLog(@"%@", message);
     [message release];
 }
+ */
 @end

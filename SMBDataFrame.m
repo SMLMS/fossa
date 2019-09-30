@@ -56,12 +56,11 @@
 }
 
 //special functions
--(void) growDataFrameWith:(NSMutableArray*) stateVector at :(NSNumber*) timePoint
+-(void) growDataFrameWith:(NSMutableArray*) stateVector at :(double) timePoint
 {
     [stateVector retain];
     [_stateData addObject: stateVector];
-    [timePoint retain];
-    [_timeData addObject: timePoint];
+    [_timeData addObject: [[NSNumber alloc] initWithDouble: timePoint]];
 }
 
 -(void) writeDataFrameToCsv

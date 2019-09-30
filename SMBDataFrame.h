@@ -36,6 +36,7 @@
     NSUInteger _numberOfSpecies;
     NSMutableArray* _stateData;
     NSMutableArray* _timeData;
+    //NSMutableArray* _reactionData;
 }
 
 //initializors
@@ -46,7 +47,7 @@
 -(void) setNumberOfSpecies:(NSUInteger) value;
 
 //special functions
--(void) growDataFrameWith:(NSMutableArray*) stateVector at :(NSNumber*) timePoint;
+-(void) growDataFrameWith:(NSMutableArray*) stateVector at :(double) timePoint;
 -(void) writeDataFrameToCsv;
 
 //deallocator

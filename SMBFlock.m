@@ -26,6 +26,7 @@
 #####################################################################*/
 
 #import <Foundation/Foundation.h>
+#import <math.h>
 #import "SMBFlock.h"
 #import "SMBModelImporter.h"
 
@@ -35,12 +36,18 @@
 {
     self=[super init];
     if(self){
-        _tmax = [[NSNumber alloc] init];
-        _t = [[NSNumber alloc] initWithFloat: 0.0];
+        _tmax = 0.0;
+        _t = 0.0;
+        _seed = 0;
+        _r1 = 0.0;
+        _r2 = 0.0;
+        _reactionIndex = 0;
         _data = [[SMBDataFrame alloc] init];
         _species = [[SMBCharacterVector alloc] init];
         _transitions = [[SMBCharacterVector alloc] init];
         _reactionConstants = [[SMBNumericVector alloc] init];
+        _reactionPDF = [[SMBNumericVector alloc] init];
+        _reactionCDF = [[SMBNumericVector alloc] init];
         _stateVector = [[SMBNumericVector alloc] init];
         _eductMatrix = [[SMBMatrix alloc] init];
         _productMatrix = [[SMBMatrix alloc] init];
@@ -51,11 +58,10 @@
 }
 
 //import functions
--(void) parseArguments:(NSNumber*) tValue :(NSString*) fileName
+-(void) parseArguments:(double) tValue :(NSUInteger) sValue :(NSString*) fileName
 {
-    [tValue retain];
-    [_tmax release];
     _tmax = tValue;
+    _seed = sValue;
     [_fileNames setParameterFileName: fileName];
     [_fileNames createFileNames];
 }
@@ -79,10 +85,12 @@
             [_stateVector calculateNumberOfEntries];
             [_reactionConstants setData: [mi importNumericModelItemFrom:@"begin(reactionConstants)" to:@"end(reactionConstants)"]];
             [_reactionConstants calculateNumberOfEntries];
-            [_eductMatrix setNumberOfColumns: [_reactionConstants numberOfEntries]];
-            [_eductMatrix setNumberOfRows: [_stateVector numberOfEntries]];
-            [_productMatrix setNumberOfColumns: [_reactionConstants numberOfEntries]];
-            [_productMatrix setNumberOfRows: [_stateVector numberOfEntries]];
+            [_reactionPDF initWithSize:[_reactionConstants numberOfEntries]];
+            [_reactionCDF initWithSize:[_reactionConstants numberOfEntries]];
+            [_eductMatrix setNumberOfColumns: [_stateVector numberOfEntries]];
+            [_eductMatrix setNumberOfRows: [_reactionConstants numberOfEntries]];
+            [_productMatrix setNumberOfColumns: [_stateVector numberOfEntries]];
+            [_productMatrix setNumberOfRows: [_reactionConstants numberOfEntries]];
             [_eductMatrix setData: [mi importNumericModelItemFrom:@"begin(educts)" to:@"end(educts)"]];
             [_productMatrix setData: [mi importNumericModelItemFrom:@"begin(products)" to:@"end(products)"]];
         }
@@ -102,11 +110,105 @@
     [mi release];
     return success;
 }
+
+// search functions
+-(NSUInteger) binarySearchCDF:(double) data
+{
+    NSUInteger l = 0;
+    NSUInteger r = (unsigned int)[_reactionCDF numberOfEntries]-1;
+    NSUInteger m = 0;
+    while (l<r){
+        m = floor((l+r)/2);
+        if ([[_reactionCDF objectAtIndex: m] doubleValue] <= data){
+            l = m + 1;
+        }
+        else{
+            r = m;
+        }
+    }
+    return l;
+}
+
 // simulation functions
+-(void) initActions
+{
+    [_actions setSeed:_seed];
+    [_actions runActions];
+}
+
+-(void) claculateReactionPDF
+{
+    double pdfEntry = 0.0;
+    NSUInteger eductEntry;
+    for (NSUInteger i=0; i<[_reactionConstants numberOfEntries]; i++) {
+        pdfEntry = [[_reactionConstants objectAtIndex:i] doubleValue];
+        for (NSUInteger j=0; j<[_stateVector numberOfEntries]; j++) {
+            eductEntry = [[_eductMatrix objectAtIndex:i :j] unsignedLongValue];
+            if (eductEntry == 1) {
+                pdfEntry *= [[_stateVector objectAtIndex:j] doubleValue];
+                continue;
+            }
+            else if (eductEntry == 2){
+                pdfEntry *= 0.5 * [[_stateVector objectAtIndex:j] unsignedLongValue] * ([[_stateVector objectAtIndex:j] unsignedLongValue] -1);
+                break;
+            }
+        }
+        [_reactionPDF replaceObjectAtIndex:i with:[NSNumber numberWithDouble: pdfEntry]];
+    }
+}
+
+-(void) calculateReactionCDF
+{
+    double cdfEntry = 0.0;
+    for (NSUInteger i=0; i<[_reactionCDF numberOfEntries]; i++){
+        cdfEntry += [[_reactionPDF objectAtIndex: i] doubleValue];
+        [_reactionCDF replaceObjectAtIndex:i with:[NSNumber numberWithDouble: cdfEntry]];
+    }
+}
+
+-(void) updateTimeStep
+{
+    _t += -log(_r1)/[[_reactionCDF objectAtIndex:[_reactionCDF numberOfEntries]-1] doubleValue];
+}
+
+-(NSUInteger) estimateReactionType
+{
+    NSUInteger reactionType = 0;
+    // binary search smallest value in cdf > r2*sum(pdf)
+    reactionType = [self binarySearchCDF:_r2*[[_reactionCDF objectAtIndex:[_reactionCDF numberOfEntries]-1] doubleValue]];
+    return reactionType;
+}
+
 -(void) runSimulation
 {
+    // init simulation
     [_data setNumberOfSpecies: [_stateVector numberOfEntries]];
-    [_data growDataFrameWith: [_stateVector data] at :(NSNumber*) _t];
+    [_data growDataFrameWith: [_stateVector data] at : _t];
+    // calculate Reaction Probabilities
+    [self claculateReactionPDF];
+    [self calculateReactionCDF];
+    NSLog(@"reaction Prpbabilies");
+    [_reactionPDF printVector];
+    [_reactionCDF printVector];
+    // draw random numbers
+    _r1 = [_actions drawRandomNumber];
+    _r2 = [_actions drawRandomNumber];
+    NSLog(@"random numbers\nseed: %lu\nR1: %.5f\nR2: %.5f", [_actions seed],_r1, _r2);
+    // estimate next event time
+    [self updateTimeStep];
+    NSLog(@"next time step:\n%.3f", _t);
+    // estimate next event type
+    _reactionIndex = [self estimateReactionType];
+    NSLog(@"next reaction at idx %lu is of type %@", _reactionIndex, [_transitions objectAtIndex:_reactionIndex]);
+    // update state vector
+    /*
+     state vector -= educt matrix row
+     state vector += product matrix row
+     */
+    // grow data frame
+    /*
+     set with state vector, time step, reaction type
+     */
 }
 
 //write functions
@@ -126,32 +228,47 @@
     return success;
 }
 
+-(bool) checkEductMatrixValidity
+{
+    bool success = true;
+    NSUInteger rSum = 0;
+    for (unsigned i=0; i<[_eductMatrix numberOfRows]; i++){
+        rSum = 0;
+        for (unsigned j=0; j<[_eductMatrix numberOfColumns]; j++){
+            rSum += [[_eductMatrix objectAtIndex:i :j] unsignedIntValue];
+        }
+        if (rSum > 2){
+            success = false;
+        }
+    }
+    if (!success){
+        NSLog(@"Error: The entries of the educt matrix do not correspond to the requirements of a stochastic petri net.");
+    }
+    return success;
+}
+
 //print functions
 -(void) printFlock
 {
-    NSLog(@"ssa Model:");
-    NSLog(@"tmax[s]: %.3f", [_tmax floatValue]);
-    NSLog(@"species:");
-    [_species printVector];
-    NSLog(@"states:");
-    [_stateVector printVectorAsInt];
-    NSLog(@"transitions:");
-    [_transitions printVector];
-    NSLog(@"reaction constants:");
-    [_reactionConstants printVectorAsFloat];
-    NSLog(@"educt matrix:");
-    [_eductMatrix printMatrix];
-    NSLog(@"product matrix:");
-    [_productMatrix printMatrix];
+    NSMutableString* message = [[NSMutableString alloc] init];
+    [message appendString:@"\n"];
+    [message appendString:@"fossa model:\n\n"];
+    [message appendFormat:@"tmax[s]: %.3f\n\n", _tmax];
+    [message appendFormat:@"species:\n%@\n", [_species vectorString]];
+    [message appendFormat:@"states:\n%@\n", [_stateVector vectorString]];
+    [message appendFormat:@"transitions:\n%@\n", [_transitions vectorString]];
+    [message appendFormat:@"reaction constants:\n%@\n", [_reactionConstants vectorString]];
+    [message appendFormat:@"educt matrix:\n%@\n", [_eductMatrix matrixString]];
+    [message appendFormat:@"product matrix:\n%@\n", [_productMatrix matrixString]];
+    [message appendFormat:@"seed: %lu\n", (unsigned long)_seed];
+    [message appendString:@"\n\n"];
+    NSLog(@"%@", message);
+    [message release];
 }
 
 //deallocator
 -(void)dealloc
 {
-    [_tmax release];
-    _tmax = nil;
-    [_t release];
-    _t = nil;
     [_data release];
     _data = nil;
     [_species release];
@@ -160,6 +277,10 @@
     _transitions = nil;
     [_reactionConstants release];
     _reactionConstants = nil;
+    [_reactionPDF release];
+    _reactionPDF = nil;
+    [_reactionCDF release];
+    _reactionCDF = nil;
     [_stateVector release];
     _stateVector = nil;
     [_eductMatrix release];

@@ -35,15 +35,38 @@
 
 -(id) init
 {
-	self = [super init];
-	return self;
+    self = [super init];
+    if(self){
+        _seed = (unsigned long)time(NULL);
+    }
+    return self;
 }
 
+//properties
+-(NSUInteger) seed
+{
+    return _seed;
+}
+
+-(void) setSeed: (NSUInteger) sValue
+{
+    _seed = sValue;
+}
+
+//actions
 -(void) runActions
 {
-	srand ((unsigned int)time(NULL));
+    srand((unsigned int)_seed);
 }
 
+-(double) drawRandomNumber
+{
+    double randomNumber;
+    randomNumber = ((float)rand()/(float)(RAND_MAX));
+    return randomNumber;
+}
+
+//deallocators
 -(void) dealloc
 {
 	[super dealloc];

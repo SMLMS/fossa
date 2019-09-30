@@ -101,6 +101,7 @@
 
 -(void) replaceObjectAtIndex:(NSUInteger)rowIdx :(NSUInteger)columnIdx with:(NSNumber*)object
 {
+    [object retain];
     NSException* exception = [[NSException alloc]
                               initWithName:@"SMBMatrix out of range error"
                               reason:@"replaceObjectAtIndex points to an entry that exceeds matrix dimensions"
@@ -111,6 +112,7 @@
     [_data replaceObjectAtIndex:(rowIdx * _numberOfColumns + columnIdx)
                      withObject:object];
     [exception release];
+    [object release];
 }
 
 // proof methods
@@ -143,15 +145,22 @@
 -(void) printMatrix
 {
     NSMutableString* message = [[NSMutableString alloc] init];
-    [message appendString:@"\n"];
+    [message appendFormat:@"\n%@", [self matrixString]];
+    NSLog(@"%@", message);
+    [message release];
+}
+
+-(NSMutableString*) matrixString
+{
+    NSMutableString* message = [[NSMutableString alloc] init];
     for (NSUInteger i=0; i<_numberOfRows; i++){
         for(NSUInteger j=0; j<_numberOfColumns; j++){
             [message appendFormat:@"%i\t", [[_data objectAtIndex: (i*_numberOfColumns+j)] intValue]];
         }
         [message appendString:@"\n"];
     }
-    NSLog(@"%@", message);
-    [message release];
+    [message autorelease];
+    return message;
 }
 
 //deallocator

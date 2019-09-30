@@ -32,10 +32,21 @@
 
 @interface SMBActions : NSObject
 {
-	// no instance variables
+    NSUInteger _seed;
 }
+
+//initializer
 -(id) init;
+
+//properties
+-(NSUInteger) seed;
+-(void) setSeed: (NSUInteger) sValue;
+
+//actions
 -(void) runActions;
+-(double) drawRandomNumber;
+
+//deallocator
 -(void) dealloc;
 
 @end

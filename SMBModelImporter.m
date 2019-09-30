@@ -169,6 +169,7 @@
     if(!foundStop){
         NSLog(@"Warning: stop sequence '%@' not found", stopSeq);
     }
+    [exceptionCharacter release];
     [formatter release];
     [startSeq release];
     [stopSeq release];

@@ -39,12 +39,18 @@
 
 @interface SMBFlock : NSObject
 {
-	NSNumber* _tmax;
-	NSNumber* _t;
+	double _tmax;
+	double _t;
+    NSUInteger _seed;
+    double _r1;
+    double _r2;
+    NSUInteger _reactionIndex;
 	SMBDataFrame* _data;
     SMBCharacterVector* _species;
     SMBCharacterVector* _transitions;
 	SMBNumericVector* _reactionConstants;
+    SMBNumericVector* _reactionPDF;
+    SMBNumericVector* _reactionCDF;
 	SMBNumericVector* _stateVector;
 	SMBMatrix* _eductMatrix;
 	SMBMatrix* _productMatrix;
@@ -56,24 +62,27 @@
 -(id) init;
 
 //import functions
--(void) parseArguments:(NSNumber*) tValue :(NSString*) fileName;
+-(void) parseArguments:(double) tValue :(NSUInteger) sValue :(NSString*) fileName;
 -(bool) importModel;
-//-(void) calculateCDF;
 
 //search functions
-//-(unsigned) binarySearchCDF:(double) data;
+-(NSUInteger) binarySearchCDF:(double) data;
 
 // simulation functions
-//-(unsigned) simMoleculeType;
-//-(void) initActions;
+-(void) initActions;
+-(void) claculateReactionPDF;
+-(void) calculateReactionCDF;
+-(void) updateTimeStep;
+-(NSUInteger) estimateReactionType;
+
 //-(void) initMolecules;
 -(void) runSimulation;
-//-(void) determineBlinkingStatistics;
 
 //proof functions
 //-(bool) checkPDF;
 //-(bool) checkProbability:(double) data;
 -(bool) checkFlockValidity;
+-(bool) checkEductMatrixValidity;
 
 //write functions
 -(void) logSimulation;

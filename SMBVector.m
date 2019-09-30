@@ -90,14 +90,23 @@
 -(void) printVector
 {
     NSMutableString* message = [[NSMutableString alloc] init];
-    [message appendString:@"\n"];
+    [message appendFormat:@"vector\n%@", [self vectorString]];
+    NSLog(@"%@", message);
+    [message release];
+}
+
+-(NSMutableString*) vectorString
+{
+    NSMutableString* message = [[NSMutableString alloc] init];
+    //[message appendString:@"\n"];
     for (NSUInteger i=0; i<_numberOfEntries; i++){
         [message appendFormat:@"%@\t", [_data objectAtIndex: i]];
     }
     [message appendString:@"\n"];
-    NSLog(@"%@", message);
-    [message release];
+    [message autorelease];
+    return message;
 }
+
 
 //deallocator
 -(void) dealloc

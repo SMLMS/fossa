@@ -58,6 +58,7 @@
 
 //print Methods
 -(void) printMatrix;
+-(NSMutableString*) matrixString;
 
 //deallocator
 -(void) dealloc;

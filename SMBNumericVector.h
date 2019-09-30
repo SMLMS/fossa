@@ -38,12 +38,14 @@
 
 //mutators
 -(NSNumber*) objectAtIndex:(NSUInteger) idx;
--(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*)object;
+-(void) replaceObjectAtIndex:(NSUInteger) idx with:(NSNumber*) object;
 
 //print Methods
+/*
 -(void) printVectorAsInt;
 -(void) printVectorAsFloat;
 -(void) printVectorAsScientific;
+ */
 
 @end
 #endif /* SMBNumericVector_h */
