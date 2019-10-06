@@ -34,10 +34,12 @@
 {
     self = [super init];
     if(self){
-       _fileName = [[NSString alloc] init];
-       _numberOfSpecies = 0;
-       _stateData = [[NSMutableArray alloc] init];
-       _timeData = [[NSMutableArray alloc] init];
+        _fileName = [[NSString alloc] init];
+        _numberOfSpecies = 0;
+        _species = [[NSMutableArray alloc] init];
+        _stateData = [[NSMutableArray alloc] init];
+        _timeData = [[NSMutableArray alloc] init];
+        _reactionData = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -55,13 +57,34 @@
     _numberOfSpecies = value;
 }
 
+-(void) setSeed:(NSUInteger) value
+{
+    _seed = value;
+}
+
+-(NSUInteger) seed;
+{
+    return _seed;
+}
+
+-(void) setSpecies:(NSMutableArray *)value
+{
+    [value retain];
+    [_species release];
+    _species = value;
+    _numberOfSpecies = [_species count];
+}
+
 //special functions
--(void) growDataFrameWith:(NSMutableArray*) stateVector at :(double) timePoint
+-(void) growDataFrameWith:(NSMutableArray*) stateVector byReaction:(NSString*) reaction at :(double) timePoint
 {
     [stateVector retain];
+    [reaction retain];
     [_stateData addObject: [[NSMutableArray alloc] initWithArray:stateVector copyItems:TRUE]];
     [_timeData addObject: [[NSNumber alloc] initWithDouble: timePoint]];
+    [_reactionData addObject:[[NSString alloc] initWithString: reaction]];
     [stateVector release];
+    [reaction release];
 }
 
 -(void) writeDataFrameToCsv
@@ -70,19 +93,21 @@
     //open file
     if ((stream = fopen([_fileName UTF8String], "w")) != NULL){
     //write header
-        fprintf(stream, "#t");
+        fprintf(stream, "#fossa simulation\n#seed; %lu\n", _seed);
+        fprintf(stream, "t,transition");
         for (NSUInteger i=0; i<_numberOfSpecies; i++){
-            fprintf(stream, ",R%lu", i);
+            fprintf(stream, ",%s", [[_species objectAtIndex:i] UTF8String]);
         }
         fprintf(stream, "\n");
     //write time and state Data line by line
 	for (NSUInteger i=0; i<[_stateData count]; i++){
-            fprintf(stream, "%.3f", [[_timeData objectAtIndex:i] floatValue]);
-            for (NSNumber* tempData in [_stateData objectAtIndex: i]){
-                fprintf(stream, ",%i", [tempData intValue]);
-            }
-            fprintf(stream, "\n");
+        fprintf(stream, "%.3f", [[_timeData objectAtIndex:i] floatValue]);
+        fprintf(stream, ",%s", [[_reactionData objectAtIndex:i] UTF8String]);
+        for (NSNumber* tempData in [_stateData objectAtIndex: i]){
+            fprintf(stream, ",%i", [tempData intValue]);
         }
+        fprintf(stream, "\n");
+    }
 	fclose(stream);
 	}
 	else{
@@ -96,10 +121,14 @@
     NSLog(@"DataFrame deallocated");
     [_fileName release];
     _fileName = nil;
+    [_species release];
+    _species = nil;
     [_stateData release];
     _stateData = nil;
     [_timeData release];
     _timeData = nil;
+    [_reactionData release];
+    _reactionData = nil;
     [super dealloc];
 }
 @end

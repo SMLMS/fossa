@@ -34,9 +34,11 @@
 {
     NSString* _fileName;
     NSUInteger _numberOfSpecies;
+    NSUInteger _seed;
+    NSMutableArray* _species;
     NSMutableArray* _stateData;
     NSMutableArray* _timeData;
-    //NSMutableArray* _reactionData;
+    NSMutableArray* _reactionData;
 }
 
 //initializors
@@ -44,10 +46,12 @@
 
 //properties
 -(void) setFileName:(NSString*) value;
--(void) setNumberOfSpecies:(NSUInteger) value;
+-(void) setSeed:(NSUInteger) value;
+-(NSUInteger) seed;
+-(void) setSpecies:(NSMutableArray*) value;
 
 //special functions
--(void) growDataFrameWith:(NSMutableArray*) stateVector at :(double) timePoint;
+-(void) growDataFrameWith:(NSMutableArray*) stateVector byReaction: (NSString*) reaction at :(double) timePoint;
 -(void) writeDataFrameToCsv;
 
 //deallocator

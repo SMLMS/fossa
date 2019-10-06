@@ -195,8 +195,9 @@
 -(void) runSimulation
 {
     // init simulation
-    [_data setNumberOfSpecies:[_stateVector numberOfEntries]];
-    [_data growDataFrameWith:[_stateVector data] at:_t];
+    [_data setSeed:_seed];
+    [_data setSpecies:[_species data]];
+    [_data growDataFrameWith:[_stateVector data] byReaction:[[NSString alloc] initWithString:@"init"] at:_t];
     while (_t < _tmax) {
         // calculate Reaction Probabilities
         [self claculateReactionPDF];
@@ -217,7 +218,7 @@
         // update state vector
         [self updateStateVectorByReactionIndex];
         // grow data frame
-        [_data growDataFrameWith:[_stateVector data] at:_t];
+        [_data growDataFrameWith:[_stateVector data] byReaction:[_transitions objectAtIndex:_reactionIndex] at:_t];
     }
 }
 
