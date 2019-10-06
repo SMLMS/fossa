@@ -63,7 +63,7 @@ int main(int argc, const char * argv[]) {
     [flock printFlock];
     [flock initActions];
     [flock runSimulation];
-    //[flock logSimulation];
+    [flock logSimulation];
     [pool drain];
     return EXIT_SUCCESS;
 }

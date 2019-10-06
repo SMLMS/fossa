@@ -73,6 +73,7 @@
 -(void) claculateReactionPDF;
 -(void) calculateReactionCDF;
 -(void) updateTimeStep;
+-(void) updateStateVectorByReactionIndex;
 -(NSUInteger) estimateReactionType;
 
 //-(void) initMolecules;

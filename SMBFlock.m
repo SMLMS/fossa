@@ -171,6 +171,19 @@
     _t += -log(_r1)/[[_reactionCDF objectAtIndex:[_reactionCDF numberOfEntries]-1] doubleValue];
 }
 
+-(void) updateStateVectorByReactionIndex
+{
+    //state vector -= educt matrix row
+    //state vector += product matrix row
+    NSUInteger updatedEntry;
+    for (NSUInteger i=0; i<[_stateVector numberOfEntries]; i++){
+        updatedEntry = [[_stateVector objectAtIndex:i] integerValue] -
+        [[_eductMatrix objectAtIndex:_reactionIndex :i] integerValue] +
+        [[_productMatrix objectAtIndex:_reactionIndex :i] integerValue];
+        [_stateVector replaceObjectAtIndex:i with:[[NSNumber alloc]initWithInteger:updatedEntry]];
+    }
+}
+
 -(NSUInteger) estimateReactionType
 {
     NSUInteger reactionType = 0;
@@ -182,33 +195,30 @@
 -(void) runSimulation
 {
     // init simulation
-    [_data setNumberOfSpecies: [_stateVector numberOfEntries]];
-    [_data growDataFrameWith: [_stateVector data] at : _t];
-    // calculate Reaction Probabilities
-    [self claculateReactionPDF];
-    [self calculateReactionCDF];
-    NSLog(@"reaction Prpbabilies");
-    [_reactionPDF printVector];
-    [_reactionCDF printVector];
-    // draw random numbers
-    _r1 = [_actions drawRandomNumber];
-    _r2 = [_actions drawRandomNumber];
-    NSLog(@"random numbers\nseed: %lu\nR1: %.5f\nR2: %.5f", [_actions seed],_r1, _r2);
-    // estimate next event time
-    [self updateTimeStep];
-    NSLog(@"next time step:\n%.3f", _t);
-    // estimate next event type
-    _reactionIndex = [self estimateReactionType];
-    NSLog(@"next reaction at idx %lu is of type %@", _reactionIndex, [_transitions objectAtIndex:_reactionIndex]);
-    // update state vector
-    /*
-     state vector -= educt matrix row
-     state vector += product matrix row
-     */
-    // grow data frame
-    /*
-     set with state vector, time step, reaction type
-     */
+    [_data setNumberOfSpecies:[_stateVector numberOfEntries]];
+    [_data growDataFrameWith:[_stateVector data] at:_t];
+    while (_t < _tmax) {
+        // calculate Reaction Probabilities
+        [self claculateReactionPDF];
+        [self calculateReactionCDF];
+        NSLog(@"reaction Prpbabilies");
+        [_reactionPDF printVector];
+        [_reactionCDF printVector];
+        // draw random numbers
+        _r1 = [_actions drawRandomNumber];
+        _r2 = [_actions drawRandomNumber];
+        NSLog(@"random numbers\nseed: %lu\nR1: %.5f\nR2: %.5f", [_actions seed],_r1, _r2);
+        // estimate next event time
+        [self updateTimeStep];
+        NSLog(@"next time step:\n%.3f", _t);
+        // estimate index of next event type
+        _reactionIndex = [self estimateReactionType];
+        NSLog(@"next reaction at idx %lu is of type %@", _reactionIndex, [_transitions objectAtIndex:_reactionIndex]);
+        // update state vector
+        [self updateStateVectorByReactionIndex];
+        // grow data frame
+        [_data growDataFrameWith:[_stateVector data] at:_t];
+    }
 }
 
 //write functions
