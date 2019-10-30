@@ -46,7 +46,7 @@
     double _r2;
     NSUInteger _reactionIndex;
 	SMBDataFrame* _data;
-    SMBCharacterVector* _species;
+    SMBCharacterVector* _places;
     SMBCharacterVector* _transitions;
 	SMBNumericVector* _reactionConstants;
     SMBNumericVector* _reactionPDF;

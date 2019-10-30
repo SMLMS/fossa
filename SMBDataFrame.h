@@ -33,9 +33,9 @@
 @interface SMBDataFrame : NSObject
 {
     NSString* _fileName;
-    NSUInteger _numberOfSpecies;
+    NSUInteger _numberOfPlaces;
     NSUInteger _seed;
-    NSMutableArray* _species;
+    NSMutableArray* _places;
     NSMutableArray* _stateData;
     NSMutableArray* _timeData;
     NSMutableArray* _reactionData;
@@ -46,9 +46,10 @@
 
 //properties
 -(void) setFileName:(NSString*) value;
+-(void) setNumberOfPlaces:(NSUInteger) value;
 -(void) setSeed:(NSUInteger) value;
 -(NSUInteger) seed;
--(void) setSpecies:(NSMutableArray*) value;
+-(void) setPlaces:(NSMutableArray*) value;
 
 //special functions
 -(void) growDataFrameWith:(NSMutableArray*) stateVector byReaction: (NSString*) reaction at :(double) timePoint;

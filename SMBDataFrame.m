@@ -35,8 +35,8 @@
     self = [super init];
     if(self){
         _fileName = [[NSString alloc] init];
-        _numberOfSpecies = 0;
-        _species = [[NSMutableArray alloc] init];
+        _numberOfPlaces = 0;
+        _places = [[NSMutableArray alloc] init];
         _stateData = [[NSMutableArray alloc] init];
         _timeData = [[NSMutableArray alloc] init];
         _reactionData = [[NSMutableArray alloc] init];
@@ -52,9 +52,9 @@
     _fileName = value;   
 }
 
--(void) setNumberOfSpecies:(NSUInteger) value
+-(void) setNumberOfPlaces:(NSUInteger) value
 {
-    _numberOfSpecies = value;
+    _numberOfPlaces = value;
 }
 
 -(void) setSeed:(NSUInteger) value
@@ -67,12 +67,12 @@
     return _seed;
 }
 
--(void) setSpecies:(NSMutableArray *)value
+-(void) setPlaces:(NSMutableArray *)value
 {
     [value retain];
-    [_species release];
-    _species = value;
-    _numberOfSpecies = [_species count];
+    [_places release];
+    _places = value;
+    _numberOfPlaces = [_places count];
 }
 
 //special functions
@@ -80,7 +80,7 @@
 {
     [stateVector retain];
     [reaction retain];
-    [_stateData addObject: [[NSMutableArray alloc] initWithArray:stateVector copyItems:TRUE]];
+    [_stateData addObject: [[NSMutableArray alloc] initWithArray:stateVector copyItems: YES]];
     [_timeData addObject: [[NSNumber alloc] initWithDouble: timePoint]];
     [_reactionData addObject:[[NSString alloc] initWithString: reaction]];
     [stateVector release];
@@ -95,8 +95,8 @@
     //write header
         fprintf(stream, "#fossa simulation\n#seed; %lu\n", _seed);
         fprintf(stream, "t,transition");
-        for (NSUInteger i=0; i<_numberOfSpecies; i++){
-            fprintf(stream, ",%s", [[_species objectAtIndex:i] UTF8String]);
+        for (NSUInteger i=0; i<_numberOfPlaces; i++){
+            fprintf(stream, ",%s", [[_places objectAtIndex:i] UTF8String]);
         }
         fprintf(stream, "\n");
     //write time and state Data line by line
@@ -121,8 +121,8 @@
     NSLog(@"DataFrame deallocated");
     [_fileName release];
     _fileName = nil;
-    [_species release];
-    _species = nil;
+    [_places release];
+    _places = nil;
     [_stateData release];
     _stateData = nil;
     [_timeData release];

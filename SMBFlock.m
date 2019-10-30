@@ -43,7 +43,7 @@
         _r2 = 0.0;
         _reactionIndex = 0;
         _data = [[SMBDataFrame alloc] init];
-        _species = [[SMBCharacterVector alloc] init];
+        _places = [[SMBCharacterVector alloc] init];
         _transitions = [[SMBCharacterVector alloc] init];
         _reactionConstants = [[SMBNumericVector alloc] init];
         _reactionPDF = [[SMBNumericVector alloc] init];
@@ -77,11 +77,11 @@
     if(success){
         [mi readCsv];
     	@try{
-            [_species setData: [mi importCharacterModelItemFrom:@"begin(species)" to:@"end(species)"]];
-            [_species calculateNumberOfEntries];
+            [_places setData: [mi importCharacterModelItemFrom:@"begin(places)" to:@"end(places)"]];
+            [_places calculateNumberOfEntries];
             [_transitions setData: [mi importCharacterModelItemFrom:@"begin(transitions)" to:@"end(transitions)"]];
             [_transitions calculateNumberOfEntries];
-            [_stateVector setData: [mi importNumericModelItemFrom:@"begin(initStates)" to:@"end(initStates)"]];
+            [_stateVector setData: [mi importNumericModelItemFrom:@"begin(initState)" to:@"end(initState)"]];
             [_stateVector calculateNumberOfEntries];
             [_reactionConstants setData: [mi importNumericModelItemFrom:@"begin(reactionConstants)" to:@"end(reactionConstants)"]];
             [_reactionConstants calculateNumberOfEntries];
@@ -91,14 +91,14 @@
             [_eductMatrix setNumberOfRows: [_reactionConstants numberOfEntries]];
             [_productMatrix setNumberOfColumns: [_stateVector numberOfEntries]];
             [_productMatrix setNumberOfRows: [_reactionConstants numberOfEntries]];
-            [_eductMatrix setData: [mi importNumericModelItemFrom:@"begin(educts)" to:@"end(educts)"]];
-            [_productMatrix setData: [mi importNumericModelItemFrom:@"begin(products)" to:@"end(products)"]];
+            [_eductMatrix setData: [mi importNumericModelItemFrom:@"begin(eductMatrix)" to:@"end(eductMatrix)"]];
+            [_productMatrix setData: [mi importNumericModelItemFrom:@"begin(productMatrix)" to:@"end(productMatrix)"]];
         }
         @catch(NSException* exception){
             NSLog(@"Fossa caught an exception:\n %@", exception);
             success = false;
         }
-        if([_species numberOfEntries] != [_stateVector numberOfEntries]){
+        if([_places numberOfEntries] != [_stateVector numberOfEntries]){
             NSLog(@"Fossa model error: species and initStates need to be of the same length!");
             success = false;
         }
@@ -196,25 +196,25 @@
 {
     // init simulation
     [_data setSeed:_seed];
-    [_data setSpecies:[_species data]];
+    [_data setPlaces:[_places data]];
     [_data growDataFrameWith:[_stateVector data] byReaction:[[NSString alloc] initWithString:@"init"] at:_t];
     while (_t < _tmax) {
         // calculate Reaction Probabilities
         [self claculateReactionPDF];
         [self calculateReactionCDF];
-        NSLog(@"reaction Prpbabilies");
-        [_reactionPDF printVector];
-        [_reactionCDF printVector];
+	//NSLog(@"reaction Prpbabilies");
+        //[_reactionPDF printVector];
+        //[_reactionCDF printVector];
         // draw random numbers
         _r1 = [_actions drawRandomNumber];
         _r2 = [_actions drawRandomNumber];
-        NSLog(@"random numbers\nseed: %lu\nR1: %.5f\nR2: %.5f", [_actions seed],_r1, _r2);
+	//NSLog(@"random numbers\nseed: %lu\nR1: %.5f\nR2: %.5f", [_actions seed],_r1, _r2);
         // estimate next event time
         [self updateTimeStep];
-        NSLog(@"next time step:\n%.3f", _t);
+	//NSLog(@"next time step:\n%.3f", _t);
         // estimate index of next event type
         _reactionIndex = [self estimateReactionType];
-        NSLog(@"next reaction at idx %lu is of type %@", _reactionIndex, [_transitions objectAtIndex:_reactionIndex]);
+	//NSLog(@"next reaction at idx %lu is of type %@", _reactionIndex, [_transitions objectAtIndex:_reactionIndex]);
         // update state vector
         [self updateStateVectorByReactionIndex];
         // grow data frame
@@ -265,8 +265,8 @@
     [message appendString:@"\n"];
     [message appendString:@"fossa model:\n\n"];
     [message appendFormat:@"tmax[s]: %.3f\n\n", _tmax];
-    [message appendFormat:@"species:\n%@\n", [_species vectorString]];
-    [message appendFormat:@"states:\n%@\n", [_stateVector vectorString]];
+    [message appendFormat:@"places:\n%@\n", [_places vectorString]];
+    [message appendFormat:@"system state:\n%@\n", [_stateVector vectorString]];
     [message appendFormat:@"transitions:\n%@\n", [_transitions vectorString]];
     [message appendFormat:@"reaction constants:\n%@\n", [_reactionConstants vectorString]];
     [message appendFormat:@"educt matrix:\n%@\n", [_eductMatrix matrixString]];
@@ -282,8 +282,8 @@
 {
     [_data release];
     _data = nil;
-    [_species release];
-    _species = nil;
+    [_places release];
+    _places = nil;
     [_transitions release];
     _transitions = nil;
     [_reactionConstants release];
